@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>koi's CSS on envelope and letter</title>
+    <link rel="stylesheet" href="./envelope.css">
+</head>
+<body>
+    <div class="container">
+        <div class="envelope-wrapper">
+            <div class="envelope">
+                <div class="letter">
+                    <div class="text">
+                        <strong>Gửi đến những bóng hồng của Vietsoc Dundee,</strong>
+                        <p>
+                            Nhân dịp 20/10, xin trân trọng kính mời chị em đến dự bữa cơm thân mật cùng chúng tôi.
+                        </p>
+                        <p>
+                          Ps: Bấm tiếp tục để xem thêm chi tiết nhé!
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="heart"></div>
+        </div>
+    </div>
+    <div class="btn hidden-btn"> <!-- Add 'hidden-btn' class -->
+      <a href="win2.html">Tiếp tục</a>
+    </div>
+    <script>
+        const envelope = document.querySelector('.envelope-wrapper');
+        const nextButton = document.querySelector('.btn');
+        envelope.addEventListener('click', () => {
+            envelope.classList.toggle('flap');
+            nextButton.classList.add('show-btn'); // Show the button when the envelope is opened
+        });
+    </script>
+</body>
+</html>

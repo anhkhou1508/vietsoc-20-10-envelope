@@ -1,41 +1,1663 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>koi's CSS on envelope and letter</title>
-    <link rel="stylesheet" href="./envelope.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inside the Quant Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one 1120px reading column. Each lab is a sheet split into a controls rail and a chart well; hairline rules separate sections like a ledger. */
+:root {
+  --bg: #f3f5f7;
+  --surface: #fcfdfd;
+  --ink: #101820;
+  --ink-2: #45515d;
+  --muted: #6f7a86;
+  --line: #d8dee4;
+  --grid: #e4e8ec;
+  --axis: #bfc7cf;
+  --accent: #1d5fc4;
+  --accent-ink: #ffffff;
+  --accent-wash: rgba(42, 120, 214, 0.11);
+  --s1: #2a78d6;
+  --s2: #eb6834;
+  --s3: #1baf7a;
+  --s4: #eda100;
+  --s8: #e34948;
+  --div-mid: #eceeef;
+  --good: #006300;
+  --bad: #b42f2f;
+  --shadow: rgba(16, 24, 32, 0.12);
+  --font-display: 'Archivo', 'Arial Narrow', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1217; --surface: #151b21; --ink: #edf1f5; --ink-2: #b3bdc7; --muted: #8a95a1;
+    --line: #27313b; --grid: #222b34; --axis: #3a4550; --accent: #6ea2f2; --accent-ink: #0d1217;
+    --accent-wash: rgba(57, 135, 229, 0.16);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s8: #e66767; --div-mid: #333a41;
+    --good: #3ec457; --bad: #ff8080; --shadow: rgba(0, 0, 0, 0.45);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1217; --surface: #151b21; --ink: #edf1f5; --ink-2: #b3bdc7; --muted: #8a95a1;
+  --line: #27313b; --grid: #222b34; --axis: #3a4550; --accent: #6ea2f2; --accent-ink: #0d1217;
+  --accent-wash: rgba(57, 135, 229, 0.16);
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s8: #e66767; --div-mid: #333a41;
+  --good: #3ec457; --bad: #ff8080; --shadow: rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.6 var(--font-body);
+  padding-inline: 16px;
+  padding-block: 0;
+  margin: 0;
+}
+.page { max-width: 1120px; margin-inline: auto; }
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  line-height: 1.06;
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+  margin: 0;
+}
+h1 { font-size: clamp(2.6rem, 7.2vw, 5rem); font-weight: 800; }
+h2 { font-size: clamp(1.8rem, 3.6vw, 2.5rem); font-weight: 750; }
+h3 { font-size: 1.35rem; font-weight: 700; }
+p { margin: 0; }
+a { color: var(--accent); }
+code, pre { font-family: var(--font-mono); }
+.eyebrow {
+  font: 500 12px/1.4 var(--font-mono);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.lede { font-size: 1.12rem; color: var(--ink-2); max-width: 62ch; }
+.prose { max-width: 66ch; color: var(--ink-2); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* nav */
+.nav {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 20;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  margin-inline: -16px;
+  padding-inline: 16px;
+}
+.nav-in {
+  max-width: 1120px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-block: 11px;
+  scrollbar-width: none;
+}
+.nav-in::-webkit-scrollbar { display: none; }
+.brand { font: 800 15px/1 var(--font-display); font-stretch: 118%; color: var(--ink); text-decoration: none; letter-spacing: 0.01em; }
+.nav-in a:not(.brand) { color: var(--ink-2); text-decoration: none; font-size: 14px; }
+.nav-in a:not(.brand):hover { color: var(--ink); }
+
+/* sections */
+section { padding-block: 64px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 28px; }
+.sec-head { display: flex; flex-direction: column; gap: 12px; }
+
+/* hero */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 40px;
+  align-items: center;
+  padding-block: 56px 48px;
+}
+.hero-copy { display: flex; flex-direction: column; gap: 20px; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero-fig { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.hero-fig figcaption { font-size: 13.5px; color: var(--muted); display: flex; gap: 12px; align-items: baseline; justify-content: space-between; flex-wrap: wrap; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 20px; font: 13px var(--font-mono); color: var(--ink-2); }
+.facts b { color: var(--ink); font-weight: 500; }
+@media (max-width: 900px) { .hero { grid-template-columns: minmax(0, 1fr); gap: 28px; } }
+
+/* buttons & controls */
+.btn {
+  font: 500 14px/1 var(--font-body);
+  padding: 9px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+.btn:hover { border-color: var(--axis); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.btn.small { padding: 6px 10px; font-size: 13px; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.ctl { display: flex; flex-direction: column; gap: 4px; }
+.ctl-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.ctl label { font-weight: 600; font-size: 14px; }
+.ctl output { font: 500 14px var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink); }
+.ctl input[type="range"] { width: 100%; accent-color: var(--accent); margin: 2px 0; }
+.hint { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+.seg { display: flex; gap: 3px; padding: 3px; border-radius: 9px; background: var(--bg); border: 1px solid var(--line); }
+.seg label { font-weight: 500; flex: 1; text-align: center; padding: 6px 8px; border-radius: 6px; cursor: pointer; font-size: 13.5px; color: var(--ink-2); position: relative; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label:has(input:checked) { background: var(--surface); color: var(--ink); font-weight: 600; box-shadow: 0 1px 3px var(--shadow); }
+.seg label:has(input:focus-visible) { outline: 2px solid var(--accent); }
+.check { display: flex; gap: 8px; align-items: center; font-size: 14px; font-weight: 600; cursor: pointer; }
+.check input { accent-color: var(--accent); width: 16px; height: 16px; }
+
+/* labs */
+.lab-wrap { display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 64px; }
+.lab-head { display: flex; flex-direction: column; gap: 8px; }
+.lab-head .who { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--muted); }
+.lab {
+  display: grid;
+  grid-template-columns: minmax(0, 16.5rem) minmax(0, 1fr);
+  gap: 32px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+}
+.lab-side, .lab-main { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.notice { display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--ink-2); }
+.notice h4 { margin: 0; font: 600 12px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.notice ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.verdict { font-size: 14.5px; color: var(--ink-2); background: var(--bg); border-radius: 8px; padding: 12px 14px; }
+.verdict b { color: var(--ink); }
+@media (max-width: 860px) { .lab { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 24px; } }
+
+/* stat tiles */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.stat { background: var(--surface); padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; }
+.stat-l { font-size: 12.5px; color: var(--muted); line-height: 1.35; }
+.stat-v { font: 600 1.4rem/1.2 var(--font-body); }
+.stat-s { font-size: 12px; color: var(--muted); }
+.pos { color: var(--good); }
+.neg { color: var(--bad); }
+
+/* charts */
+.fig { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.fig-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 4px 16px; }
+.ct { font-size: 14px; font-weight: 600; }
+.cs { font-size: 12.5px; color: var(--muted); }
+.chart { position: relative; --h: 260px; }
+.chart canvas { display: block; width: 100%; height: var(--h); touch-action: pan-y; }
+.chart canvas.ov { position: absolute; inset: 0; height: 100%; pointer-events: none; }
+.tip {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  box-shadow: 0 6px 18px var(--shadow);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  min-width: 10rem;
+  max-width: 16rem;
+}
+.tip .h { font-weight: 600; margin-bottom: 2px; }
+.tip .k { display: flex; justify-content: space-between; gap: 14px; }
+.tip .k span:first-child { color: var(--ink-2); display: inline-flex; align-items: center; gap: 6px; }
+.tip .k span:last-child { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.tip i, .legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; background: var(--c); flex: none; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--ink-2); }
+.key { display: inline-flex; align-items: center; gap: 7px; }
+.legend i.sq, .tip i.sq { width: 10px; height: 10px; border-radius: 3px; }
+.legend i.dot, .tip i.dot { width: 9px; height: 9px; border-radius: 50%; }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; }
+@media (max-width: 700px) { .two { grid-template-columns: minmax(0, 1fr); } }
+
+/* roles */
+.roles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 1020px) { .roles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 580px) { .roles { grid-template-columns: minmax(0, 1fr); } }
+.role { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.role h3 { font-size: 1.15rem; display: flex; align-items: center; gap: 9px; }
+.role h3 i { width: 11px; height: 11px; border-radius: 50%; background: var(--c); flex: none; }
+.role .q { font-size: 15.5px; font-weight: 500; line-height: 1.45; }
+.role dl { margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 14px; }
+.role dt { font: 500 11px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.role dd { margin: 2px 0 0; color: var(--ink-2); line-height: 1.5; }
+.meters { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; }
+.meter { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 13px; color: var(--ink-2); }
+.pips { display: flex; gap: 3px; }
+.pips b { width: 14px; height: 6px; border-radius: 2px; background: var(--grid); }
+.pips b.on { background: var(--c); }
+.where { font-size: 14px; color: var(--muted); }
+.where b { color: var(--ink-2); font-weight: 500; }
+
+/* pipeline */
+.pipe { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 920px) { .pipe { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .pipe { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.stage {
+  width: 100%; height: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  display: flex; flex-direction: column; gap: 6px;
+  color: var(--ink);
+  font: inherit;
+}
+.stage:hover { border-color: var(--axis); }
+.stage[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.stage .n { font: 500 12px var(--font-mono); color: var(--muted); }
+.stage .t { font: 700 1.05rem/1.15 var(--font-display); font-stretch: 108%; }
+.stage .d { font-size: 13px; color: var(--ink-2); line-height: 1.4; }
+.owners { display: flex; gap: 5px; margin-top: auto; padding-top: 4px; }
+.owners i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+.loop { font-size: 13.5px; color: var(--muted); }
+.stage-detail {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 22px;
+}
+.stage-detail h4 { margin: 0 0 6px; font: 500 11px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.stage-detail p { font-size: 14.5px; color: var(--ink-2); }
+.stage-detail .foot { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; padding-top: 14px; border-top: 1px solid var(--line); font-size: 13.5px; color: var(--ink-2); }
+.chip { display: inline-flex; align-items: center; gap: 6px; }
+.chip i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+@media (max-width: 760px) { .stage-detail { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 16px; } }
+
+/* heatmaps */
+.heat { display: grid; grid-template-columns: 2rem repeat(8, minmax(0, 1fr)); gap: 2px; font: 11px var(--font-mono); font-variant-numeric: tabular-nums; }
+.heat .hl { color: var(--muted); display: flex; align-items: center; justify-content: center; min-height: 20px; }
+.heat .corner { font-size: 10px; }
+.cell { position: relative; height: 30px; border: 0; border-radius: 4px; font: inherit; cursor: pointer; padding: 0; }
+.cell:disabled { background: transparent; cursor: default; }
+.cell.sel { outline: 2px solid var(--ink); outline-offset: -1px; z-index: 1; }
+.cell.best::after { content: ""; position: absolute; top: 3px; right: 3px; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.heat-cap { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+.scale { display: inline-flex; align-items: center; gap: 6px; }
+.scale span.bar { width: 90px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--s8), var(--div-mid), var(--s1)); }
+
+/* tables */
+.tbl-wrap { overflow-x: auto; }
+table.perf { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.perf th, table.perf td { padding: 8px 10px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table.perf th:first-child, table.perf td:first-child { text-align: left; }
+table.perf th { font: 500 11.5px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+table.perf td { font-variant-numeric: tabular-nums; }
+table.perf td:first-child { white-space: normal; }
+table.perf td:not(:first-child) { font-family: var(--font-mono); }
+details.code { border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+details.code summary { cursor: pointer; padding: 10px 14px; font-size: 14px; font-weight: 600; }
+details.code pre { margin: 0; padding: 0 14px 14px; overflow-x: auto; font-size: 12.5px; line-height: 1.6; color: var(--ink-2); }
+
+/* order book */
+.mm-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 17rem); gap: 24px; }
+@media (max-width: 760px) { .mm-grid { grid-template-columns: minmax(0, 1fr); } }
+.book { width: 100%; border-collapse: collapse; font: 12px var(--font-mono); font-variant-numeric: tabular-nums; table-layout: fixed; }
+.book th { font-weight: 500; color: var(--muted); font-size: 11px; padding: 0 4px 6px; text-align: center; }
+.book td { padding: 0 4px; height: 19px; vertical-align: middle; }
+.book td.px { text-align: center; color: var(--ink-2); width: 4.6rem; }
+.book .sz { display: flex; align-items: center; gap: 5px; }
+.book td.b .sz { flex-direction: row-reverse; }
+.book .sz i { height: 11px; border-radius: 2px; background: var(--c); display: block; flex: none; }
+.book .sz span { color: var(--muted); font-size: 11px; }
+.book tr.me td { background: var(--accent-wash); }
+.book tr.me td.px { color: var(--ink); font-weight: 500; }
+.book .you { font: 600 10px var(--font-body); color: var(--accent-ink); background: var(--accent); border-radius: 4px; padding: 1px 5px; }
+.book tr.mid td { text-align: center; color: var(--muted); font-size: 11px; border-block: 1px solid var(--grid); }
+.brk { display: flex; flex-direction: column; gap: 8px; font-size: 13.5px; }
+.brk-row { display: grid; grid-template-columns: minmax(0, 16rem) minmax(0, 1fr) 5.2rem; gap: 10px; align-items: center; }
+.brk-row b { text-align: right; font: 500 13px var(--font-mono); font-variant-numeric: tabular-nums; }
+.brk-row span { color: var(--ink-2); }
+.brk-track { position: relative; height: 12px; }
+.brk-track::before { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--axis); }
+.brk-track i { position: absolute; top: 0; height: 12px; border-radius: 3px; }
+.brk-row.total { border-top: 1px solid var(--line); padding-top: 8px; font-weight: 600; }
+.brk-row.total span { color: var(--ink); }
+@media (max-width: 480px) { .brk-row { grid-template-columns: minmax(0, 1fr) 5rem; } .brk-track { grid-column: 1 / -1; grid-row: 2; } }
+
+/* latency */
+.lat { display: flex; flex-direction: column; gap: 4px; }
+.lat-row { display: grid; grid-template-columns: minmax(0, 17rem) minmax(0, 1fr); gap: 16px; align-items: center; }
+.lat-row > span { font-size: 13.5px; color: var(--ink-2); line-height: 1.35; }
+.lat-track {
+  position: relative; height: 30px;
+  background-image: linear-gradient(to right, var(--grid) 1px, transparent 1px);
+  background-size: 10% 100%;
+  border-right: 1px solid var(--grid);
+}
+.lat-track .pt { position: absolute; top: 50%; width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px var(--surface); }
+.lat-track .v { position: absolute; top: 50%; transform: translateY(-50%); font: 12px var(--font-mono); color: var(--ink); white-space: nowrap; }
+.lat-axis .lat-track { background: none; border: 0; height: 20px; }
+.lat-axis .lat-track span { position: absolute; top: 0; white-space: nowrap; transform: translateX(-50%); font: 11px var(--font-mono); color: var(--muted); }
+.lat-axis .lat-track span:last-child { transform: translateX(-100%); }
+@media (max-width: 640px) { .lat-row { grid-template-columns: minmax(0, 1fr); gap: 2px; } .lat-row > span { padding-top: 6px; } }
+.builds { display: grid; grid-template-columns: repeat(auto-fit, minmax(11.5rem, 1fr)); gap: 0 28px; margin: 0; padding: 0; list-style: none; }
+.builds li { padding-block: 10px; border-top: 1px solid var(--line); font-size: 14px; color: var(--ink-2); }
+.builds b { color: var(--ink); display: block; font-weight: 600; }
+
+/* glossary */
+.gl-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.gl-bar input { font: 15px var(--font-body); padding: 9px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); width: min(100%, 22rem); }
+.gloss { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 0 32px; margin: 0; }
+.gloss div { padding-block: 12px; border-top: 1px solid var(--line); }
+.gloss dt { font-weight: 600; }
+.gloss dd { margin: 2px 0 0; color: var(--ink-2); font-size: 14.5px; line-height: 1.5; }
+footer { padding-block: 32px 48px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="envelope-wrapper">
-            <div class="envelope">
-                <div class="letter">
-                    <div class="text">
-                        <strong>Gửi đến những bóng hồng của Vietsoc Dundee,</strong>
-                        <p>
-                            Nhân dịp 20/10, xin trân trọng kính mời chị em đến dự bữa cơm thân mật cùng chúng tôi.
-                        </p>
-                        <p>
-                          Ps: Bấm tiếp tục để xem thêm chi tiết nhé!
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="heart"></div>
+<nav class="nav" aria-label="Sections">
+  <div class="nav-in">
+    <a class="brand" href="#top">QUANT DESK</a>
+    <a href="#roles">Roles</a>
+    <a href="#pipeline">Pipeline</a>
+    <a href="#lab-random">Randomness</a>
+    <a href="#lab-backtest">Backtesting</a>
+    <a href="#lab-diversify">Diversifying</a>
+    <a href="#lab-options">Options</a>
+    <a href="#lab-mm">Market making</a>
+    <a href="#lab-speed">Speed</a>
+    <a href="#glossary">Glossary</a>
+  </div>
+</nav>
+
+<div class="page">
+
+<header class="hero" id="top">
+  <div class="hero-copy">
+    <p class="eyebrow">A field guide to quantitative finance</p>
+    <h1>What does a <em>quant</em> actually do?</h1>
+    <p class="lede">Quants use maths, statistics and code to make trading decisions. Nobody can say which way a price goes next. A quant measures how wide the range of outcomes is, then hunts for small edges that repeat across thousands of trades.</p>
+    <div class="facts">
+      <span><b>4</b> common roles</span>
+      <span><b>6</b> steps from idea to trade</span>
+      <span><b>6</b> live simulations</span>
+    </div>
+  </div>
+  <figure class="hero-fig">
+    <div class="chart" id="hero-chart" style="--h:330px"><canvas aria-label="Sixty simulated one-year price paths for a stock starting at 100 dollars"></canvas></div>
+    <figcaption>
+      <span>60 possible years for a $100 stock with 25% volatility. The orange line is just one of them.</span>
+      <button class="btn small" id="hero-roll" type="button">Roll again</button>
+    </figcaption>
+  </figure>
+</header>
+
+<!-- ROLES -->
+<section id="roles">
+  <div class="sec-head">
+    <p class="eyebrow">Who sits on the desk</p>
+    <h2>Four kinds of quant</h2>
+    <p class="prose">Titles change from firm to firm, but most quant teams split the work along these lines. The colour of each role is used throughout the page to show who owns what.</p>
+  </div>
+  <div class="roles">
+    <article class="role" style="--c:var(--s1)">
+      <h3><i></i>Quant researcher</h3>
+      <p class="q">“Is there a pattern in this data that will still be there next month?”</p>
+      <dl>
+        <div><dt>Spends the day</dt><dd>Cleaning data, forming hypotheses, running backtests, reading papers, and throwing away most ideas.</dd></div>
+        <div><dt>Tools</dt><dd>Python (pandas, NumPy), statistics, SQL, notebooks</dd></div>
+        <div><dt>Usual background</dt><dd>Maths, physics, statistics or computer science, often a PhD</dd></div>
+      </dl>
+      <div class="meters" data-m="5,3,3,2"></div>
+    </article>
+    <article class="role" style="--c:var(--s2)">
+      <h3><i></i>Quant trader</h3>
+      <p class="q">“How much should we bet, and when do we stop?”</p>
+      <dl>
+        <div><dt>Spends the day</dt><dd>Running live strategies, sizing positions, watching fills and risk, switching off anything that misbehaves.</dd></div>
+        <div><dt>Tools</dt><dd>Live dashboards, Python, probability, quick mental maths</dd></div>
+        <div><dt>Usual background</dt><dd>Maths, engineering or economics. Interviews test betting games and fast estimates.</dd></div>
+      </dl>
+      <div class="meters" data-m="4,3,5,5"></div>
+    </article>
+    <article class="role" style="--c:var(--s3)">
+      <h3><i></i>Quant developer</h3>
+      <p class="q">“Will this run correctly, every time, in a few microseconds?”</p>
+      <dl>
+        <div><dt>Spends the day</dt><dd>Building data pipelines, backtest engines, exchange connections and order systems, then measuring and removing delay.</dd></div>
+        <div><dt>Tools</dt><dd>C++, Python, Linux, networking. FPGAs at the fastest firms.</dd></div>
+        <div><dt>Usual background</dt><dd>Computer science or software engineering</dd></div>
+      </dl>
+      <div class="meters" data-m="3,5,2,4"></div>
+    </article>
+    <article class="role" style="--c:var(--s4)">
+      <h3><i></i>Risk &amp; pricing quant</h3>
+      <p class="q">“What is this contract worth, and how much could we lose?”</p>
+      <dl>
+        <div><dt>Spends the day</dt><dd>Building models that price derivatives, working out hedges and loss limits, checking other people’s models.</dd></div>
+        <div><dt>Tools</dt><dd>Probability, stochastic calculus, Monte Carlo, C++ or Python</dd></div>
+        <div><dt>Usual background</dt><dd>Maths or physics. Common at banks and insurers.</dd></div>
+      </dl>
+      <div class="meters" data-m="5,4,4,2"></div>
+    </article>
+  </div>
+  <p class="where">Where they work: <b>hedge funds</b> · <b>proprietary trading firms</b> · <b>market makers</b> · <b>investment banks</b> · <b>asset managers</b>. The bars show a rough emphasis on each skill out of five.</p>
+</section>
+
+<!-- PIPELINE -->
+<section id="pipeline">
+  <div class="sec-head">
+    <p class="eyebrow">How an idea becomes a trade</p>
+    <h2>The quant pipeline</h2>
+    <p class="prose">Every systematic strategy passes through the same six steps. Select a step to see what happens there, a real example, and the classic way it goes wrong.</p>
+  </div>
+  <ol class="pipe" id="pipe"></ol>
+  <p class="loop">↺ What the live strategy does feeds the next round of research, so the loop never really ends.</p>
+  <div class="stage-detail" id="stage-detail" aria-live="polite"></div>
+</section>
+
+<!-- LABS -->
+<section id="lab">
+  <div class="sec-head">
+    <p class="eyebrow">The lab</p>
+    <h2>Six ideas you can play with</h2>
+    <p class="prose">Every market on this page is simulated. That is on purpose: because we know exactly what is true underneath, you can check whether a method finds something real or is fooled by noise. Hover or touch any chart for exact numbers.</p>
+  </div>
+
+  <!-- Lab: randomness -->
+  <div class="lab-wrap" id="lab-random">
+    <div class="lab-head">
+      <p class="eyebrow">Volatility · Monte Carlo</p>
+      <h3>One stock, many possible futures</h3>
+      <div class="who"><span class="chip" style="--c:var(--s1)"><i></i>Researcher</span><span class="chip" style="--c:var(--s4)"><i></i>Risk quant</span></div>
+    </div>
+    <div class="lab">
+      <div class="lab-side">
+        <div class="ctl">
+          <div class="ctl-top"><label for="rw-vol">Volatility</label><output id="rw-vol-o"></output></div>
+          <input type="range" id="rw-vol" min="5" max="80" step="1" value="25">
+          <p class="hint">How much the price wobbles in a year. Big tech stocks sit around 25–40%.</p>
         </div>
+        <div class="ctl">
+          <div class="ctl-top"><label for="rw-mu">Expected return</label><output id="rw-mu-o"></output></div>
+          <input type="range" id="rw-mu" min="-10" max="20" step="1" value="7">
+          <p class="hint">The average yearly drift. Small next to the wobble.</p>
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><label for="rw-n">Simulated futures</label><output id="rw-n-o"></output></div>
+          <input type="range" id="rw-n" min="10" max="300" step="10" value="120">
+        </div>
+        <div class="btn-row"><button class="btn" id="rw-roll" type="button">Roll new futures</button></div>
+        <div class="notice">
+          <h4>What to notice</h4>
+          <ul>
+            <li>Raise volatility and the fan widens much faster than the drift can move it.</li>
+            <li>The histogram leans right: prices can’t fall below $0 but can rise a lot.</li>
+            <li>Running thousands of random futures like this is called Monte Carlo simulation. Risk teams use it to price contracts and size worst cases.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="lab-main">
+        <div class="stats">
+          <div class="stat"><span class="stat-l">Chance of ending above $100</span><span class="stat-v" id="rw-up"></span></div>
+          <div class="stat"><span class="stat-l">Middle 90% of outcomes</span><span class="stat-v" id="rw-range"></span></div>
+          <div class="stat"><span class="stat-l">Typical daily move</span><span class="stat-v" id="rw-daily"></span></div>
+        </div>
+        <div class="fig">
+          <div class="fig-head"><span class="ct">Price paths over one year</span><span class="cs">shaded band = middle 90% · dark line = median</span></div>
+          <div class="chart" id="rw-fan" style="--h:290px"><canvas aria-label="Simulated price paths"></canvas></div>
+        </div>
+        <div class="fig">
+          <div class="fig-head"><span class="ct">Where the paths end after a year</span>
+            <span class="legend"><span class="key"><i class="sq" style="--c:var(--s8)"></i>Ends below $100</span><span class="key"><i class="sq" style="--c:var(--s1)"></i>Ends at or above $100</span></span>
+          </div>
+          <div class="chart" id="rw-hist" style="--h:190px"><canvas aria-label="Histogram of year-end prices"></canvas></div>
+        </div>
+      </div>
     </div>
-    <div class="btn hidden-btn"> <!-- Add 'hidden-btn' class -->
-      <a href="win2.html">Tiếp tục</a>
+  </div>
+
+  <!-- Lab: backtest -->
+  <div class="lab-wrap" id="lab-backtest">
+    <div class="lab-head">
+      <p class="eyebrow">Signals · backtesting · overfitting</p>
+      <h3>Test a trading rule, then see if it was luck</h3>
+      <div class="who"><span class="chip" style="--c:var(--s1)"><i></i>Researcher</span><span class="chip" style="--c:var(--s3)"><i></i>Developer</span></div>
     </div>
-    <script>
-        const envelope = document.querySelector('.envelope-wrapper');
-        const nextButton = document.querySelector('.btn');
-        envelope.addEventListener('click', () => {
-            envelope.classList.toggle('flap');
-            nextButton.classList.add('show-btn'); // Show the button when the envelope is opened
-        });
-    </script>
+    <p class="prose">The rule: hold the stock when its short moving average is above its long one, otherwise sit in cash. The first two years are <b>in-sample</b>, the data you are allowed to look at while choosing settings. The last year is <b>out-of-sample</b>, held back as an honest test.</p>
+    <div class="lab">
+      <div class="lab-side">
+        <div class="ctl">
+          <span class="ctl-top"><label>What is hidden in this market?</label></span>
+          <div class="seg" role="radiogroup" aria-label="Market type">
+            <label><input type="radio" name="bt-regime" value="random" checked><span>Nothing</span></label>
+            <label><input type="radio" name="bt-regime" value="trend"><span>Real trends</span></label>
+          </div>
+          <p class="hint">“Nothing” is a pure random walk: no rule can truly beat it. “Real trends” adds up and down drifts that last about three months.</p>
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><label for="bt-cost">Trading cost</label><output id="bt-cost-o"></output></div>
+          <input type="range" id="bt-cost" min="0" max="30" step="1" value="5">
+          <p class="hint">Fees and slippage on every buy or sell, in basis points (1 bp = 0.01%).</p>
+        </div>
+        <div class="btn-row">
+          <button class="btn primary" id="bt-best" type="button">Pick best in-sample</button>
+          <button class="btn" id="bt-new" type="button">New market</button>
+        </div>
+        <div class="notice">
+          <h4>What to notice</h4>
+          <ul>
+            <li>Press <b>Pick best in-sample</b>, then find the same cell (marked ●) in the right-hand map.</li>
+            <li>Switch to <b>Real trends</b>: good settings now tend to stay good, because there is something real to find.</li>
+            <li>Raise the trading cost: short averages trade often and bleed the most.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="lab-main">
+        <p class="verdict" id="bt-verdict"></p>
+        <div class="two">
+          <div class="fig">
+            <span class="ct">In-sample Sharpe ratio</span>
+            <span class="cs">What you see while tuning. Rows: short average (days). Columns: long average (days). Select a cell to test it.</span>
+            <div class="heat" id="heat-is"></div>
+          </div>
+          <div class="fig">
+            <span class="ct">Out-of-sample Sharpe ratio</span>
+            <span class="cs">What the same settings earned on the unseen year.</span>
+            <div class="heat" id="heat-oos"></div>
+            <div class="heat-cap"><span class="scale">−1.5 <span class="bar"></span> +1.5</span><span>● best in-sample cell</span></div>
+          </div>
+        </div>
+        <div class="fig">
+          <div class="fig-head"><span class="ct" id="bt-price-title">Price and moving averages</span>
+            <span class="legend"><span class="key"><i style="--c:var(--muted)"></i>Price</span><span class="key"><i style="--c:var(--s1)"></i><span id="bt-fast-l">Short average</span></span><span class="key"><i style="--c:var(--s2)"></i><span id="bt-slow-l">Long average</span></span><span class="key"><i class="sq" style="--c:var(--grid)"></i>Holding the stock</span></span>
+          </div>
+          <div class="chart" id="bt-price" style="--h:250px"><canvas aria-label="Price with moving averages"></canvas></div>
+        </div>
+        <div class="fig">
+          <div class="fig-head"><span class="ct">Growth of $100</span>
+            <span class="legend"><span class="key"><i style="--c:var(--s1)"></i>Strategy</span><span class="key"><i style="--c:var(--muted)"></i>Just buy and hold</span></span>
+          </div>
+          <div class="chart" id="bt-eq" style="--h:200px"><canvas aria-label="Equity curve of strategy and buy and hold"></canvas></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="perf" id="bt-table"></table>
+        </div>
+        <details class="code">
+          <summary>The same backtest in 10 lines of Python</summary>
+<pre><code>import pandas as pd
+
+def backtest(prices: pd.Series, fast=10, slow=60, cost_bps=5):
+    position = (prices.rolling(fast).mean() &gt; prices.rolling(slow).mean()).astype(int)
+    trades = position.diff().abs().fillna(0)
+    daily = prices.pct_change()
+    # act on tomorrow's return: using today's would be looking into the future
+    strat = position.shift(1) * daily - trades.shift(1) * cost_bps / 10_000
+    sharpe = strat.mean() / strat.std() * 252 ** 0.5
+    return strat, sharpe</code></pre>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lab: diversification -->
+  <div class="lab-wrap" id="lab-diversify">
+    <div class="lab-head">
+      <p class="eyebrow">Correlation · portfolio construction</p>
+      <h3>Why mixing two risky things can be safer than either</h3>
+      <div class="who"><span class="chip" style="--c:var(--s1)"><i></i>Researcher</span><span class="chip" style="--c:var(--s2)"><i></i>Trader</span></div>
+    </div>
+    <div class="lab">
+      <div class="lab-side">
+        <div class="ctl">
+          <div class="ctl-top"><label for="dv-rho">Correlation of A and B</label><output id="dv-rho-o"></output></div>
+          <input type="range" id="dv-rho" min="-100" max="100" step="5" value="10">
+          <p class="hint">+1: they move in lockstep. 0: unrelated. −1: one rises exactly when the other falls.</p>
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><label for="dv-w">Money in A</label><output id="dv-w-o"></output></div>
+          <input type="range" id="dv-w" min="0" max="100" step="5" value="60">
+          <p class="hint">The rest goes into B.</p>
+        </div>
+        <div class="btn-row"><button class="btn" id="dv-roll" type="button">New random year</button></div>
+        <div class="notice">
+          <h4>What to notice</h4>
+          <ul>
+            <li>At +1 the blue curve becomes the straight grey line: mixing gives no benefit.</li>
+            <li>The lower the correlation, the further the curve bends left, toward less risk at the same return.</li>
+            <li>That bend is the only “free lunch” in finance, and portfolio quants spend their days chasing it.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="lab-main">
+        <div class="stats">
+          <div class="stat"><span class="stat-l">Risk of your mix</span><span class="stat-v" id="dv-risk"></span></div>
+          <div class="stat"><span class="stat-l">Risk if A and B moved in lockstep</span><span class="stat-v" id="dv-lock"></span></div>
+          <div class="stat"><span class="stat-l">Risk removed by mixing</span><span class="stat-v" id="dv-saved"></span></div>
+        </div>
+        <div class="fig">
+          <div class="fig-head"><span class="ct">Risk vs expected return for every mix</span>
+            <span class="legend"><span class="key"><i style="--c:var(--s1)"></i>Your correlation</span><span class="key"><i style="--c:var(--axis)"></i>Correlation +1</span></span>
+          </div>
+          <div class="chart" id="dv-front" style="--h:280px"><canvas aria-label="Risk and return of portfolios mixing A and B"></canvas></div>
+          <span class="cs">A: steady asset, 6% a year with 15% volatility. B: bumpy asset, 9% a year with 25% volatility.</span>
+        </div>
+        <div class="fig">
+          <div class="fig-head"><span class="ct">One simulated year</span>
+            <span class="legend"><span class="key"><i style="--c:var(--s1)"></i>A</span><span class="key"><i style="--c:var(--s2)"></i>B</span><span class="key"><i style="--c:var(--ink)"></i>Your mix</span></span>
+          </div>
+          <div class="chart" id="dv-paths" style="--h:210px"><canvas aria-label="Simulated year for A, B and the mix"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lab: options -->
+  <div class="lab-wrap" id="lab-options">
+    <div class="lab-head">
+      <p class="eyebrow">Derivatives · Black–Scholes · Greeks</p>
+      <h3>Putting a price on uncertainty</h3>
+      <div class="who"><span class="chip" style="--c:var(--s4)"><i></i>Pricing quant</span><span class="chip" style="--c:var(--s2)"><i></i>Trader</span></div>
+    </div>
+    <p class="prose">An option is a contract that lets you buy (a <b>call</b>) or sell (a <b>put</b>) a stock at a fixed price, the <b>strike</b>, on a future date. If the deal is bad on that date you simply walk away. The Black–Scholes formula, published in 1973, says what that choice is worth today.</p>
+    <div class="lab">
+      <div class="lab-side">
+        <div class="ctl">
+          <span class="ctl-top"><label>Contract</label></span>
+          <div class="seg" role="radiogroup" aria-label="Option type">
+            <label><input type="radio" name="op-type" value="call" checked><span>Call (right to buy)</span></label>
+            <label><input type="radio" name="op-type" value="put"><span>Put (right to sell)</span></label>
+          </div>
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><label for="op-k">Strike price</label><output id="op-k-o"></output></div>
+          <input type="range" id="op-k" min="70" max="130" step="1" value="105">
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><label for="op-vol">Volatility</label><output id="op-vol-o"></output></div>
+          <input type="range" id="op-vol" min="5" max="80" step="1" value="30">
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><label for="op-days">Days until expiry</label><output id="op-days-o"></output></div>
+          <input type="range" id="op-days" min="1" max="365" step="1" value="90">
+        </div>
+        <div class="notice">
+          <h4>What to notice</h4>
+          <ul>
+            <li>The grey hockey stick is what the option pays on the final day. The blue curve is its fair value today.</li>
+            <li>Raise volatility: the curve lifts away from the stick. More uncertainty makes the option worth more.</li>
+            <li>Drag days to 1: the curve collapses onto the stick as the time value runs out.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="lab-main">
+        <div class="stats">
+          <div class="stat"><span class="stat-l">Fair price today</span><span class="stat-v" id="op-price"></span><span class="stat-s">with the stock at $100</span></div>
+          <div class="stat"><span class="stat-l">Delta</span><span class="stat-v" id="op-delta"></span><span class="stat-s" id="op-delta-s"></span></div>
+          <div class="stat"><span class="stat-l">Chance it pays out</span><span class="stat-v" id="op-itm"></span><span class="stat-s">under the model</span></div>
+          <div class="stat"><span class="stat-l">Break-even at expiry</span><span class="stat-v" id="op-be"></span><span class="stat-s">strike plus or minus the price paid</span></div>
+        </div>
+        <div class="fig">
+          <div class="fig-head"><span class="ct">Option value against the stock price</span>
+            <span class="legend"><span class="key"><i style="--c:var(--s1)"></i>Value today</span><span class="key"><i style="--c:var(--ink-2)"></i>Payoff at expiry</span><span class="key"><i class="sq" style="--c:var(--accent-wash)"></i>Time value</span></span>
+          </div>
+          <div class="chart" id="op-chart" style="--h:310px"><canvas aria-label="Option value curve and payoff"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lab: market making -->
+  <div class="lab-wrap" id="lab-mm">
+    <div class="lab-head">
+      <p class="eyebrow">Order books · spreads · adverse selection</p>
+      <h3>Be the market maker for a day</h3>
+      <div class="who"><span class="chip" style="--c:var(--s2)"><i></i>Trader</span><span class="chip" style="--c:var(--s3)"><i></i>Developer</span><span class="chip" style="--c:var(--s1)"><i></i>Researcher</span></div>
+    </div>
+    <p class="prose">A market maker always shows two prices: a <b>bid</b> it will buy at and an <b>ask</b> it will sell at, a few cents apart. Each time a buyer and a seller both trade with it, it pockets the gap. The danger is <b>informed traders</b>, who only trade with you right before the price jumps against you.</p>
+    <div class="lab">
+      <div class="lab-side">
+        <div class="ctl">
+          <div class="ctl-top"><label for="mm-half">Distance from mid price</label><output id="mm-half-o"></output></div>
+          <input type="range" id="mm-half" min="1" max="10" step="1" value="3">
+          <p class="hint">How far your bid and ask sit from the middle, in 1¢ ticks. Closer gets more trades but less profit each.</p>
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><label for="mm-inf">Informed traders</label><output id="mm-inf-o"></output></div>
+          <input type="range" id="mm-inf" min="0" max="30" step="1" value="6">
+          <p class="hint">Share of moments when someone knows the price is about to jump 8¢.</p>
+        </div>
+        <label class="check"><input type="checkbox" id="mm-skew" checked>Lean quotes against inventory</label>
+        <p class="hint">When you hold too much, shade both prices down so you sell more and buy less, and the reverse when you’re short.</p>
+        <div class="btn-row"><button class="btn" id="mm-run" type="button">Run a new day</button></div>
+      </div>
+      <div class="lab-main">
+        <div class="mm-grid">
+          <div class="fig" style="gap:16px">
+            <div class="fig">
+              <div class="fig-head"><span class="ct">Profit and loss</span><span class="cs">1,500 moments in one trading session</span></div>
+              <div class="chart" id="mm-pnl" style="--h:190px"><canvas aria-label="Market maker profit and loss"></canvas></div>
+            </div>
+            <div class="fig">
+              <div class="fig-head"><span class="ct">Inventory (shares held)</span><span class="cs">above 0 = long, below 0 = short</span></div>
+              <div class="chart" id="mm-inv" style="--h:150px"><canvas aria-label="Market maker inventory"></canvas></div>
+            </div>
+          </div>
+          <div class="fig">
+            <div class="fig-head"><span class="ct">Order book</span><span class="cs" id="mm-book-t"></span></div>
+            <table class="book" id="mm-book" aria-label="Order book"></table>
+            <span class="cs">Hover the charts to rewind the book.</span>
+          </div>
+        </div>
+        <div class="fig">
+          <span class="ct">Where the money came from</span>
+          <div class="brk" id="mm-brk"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lab: speed -->
+  <div class="lab-wrap" id="lab-speed">
+    <div class="lab-head">
+      <p class="eyebrow">Latency · systems</p>
+      <h3>How fast is fast? The quant developer’s world</h3>
+      <div class="who"><span class="chip" style="--c:var(--s3)"><i></i>Developer</span></div>
+    </div>
+    <p class="prose">In a race to trade on the same news, the first order to arrive wins. Each gridline below is ten times longer than the one before it. If one nanosecond lasted a second, a blink would last <b>almost five years</b> and a message from Chicago to New Jersey would take <b>46 days</b>.</p>
+    <div class="lab" style="grid-template-columns:minmax(0,1fr)">
+      <div class="lab-main">
+        <div class="legend" id="lat-legend"></div>
+        <div class="lat" id="lat"></div>
+        <span class="cs">Typical values, rounded. Exact numbers depend on hardware and route.</span>
+        <div class="fig">
+          <span class="ct">What quant developers build</span>
+          <ul class="builds">
+            <li><b>Market data handlers</b>Read millions of exchange messages a second and rebuild the order book.</li>
+            <li><b>Order gateways</b>Send, amend and cancel orders, and check every one against risk limits first.</li>
+            <li><b>Backtest engines</b>Replay years of history quickly and without peeking at the future.</li>
+            <li><b>Research platforms</b>Clean, versioned data so researchers can test ideas in minutes.</li>
+            <li><b>Monitoring and kill switches</b>Watch live P&amp;L and pull every order the moment something breaks.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<section id="glossary">
+  <div class="sec-head">
+    <p class="eyebrow">Words you’ll hear on the desk</p>
+    <h2>Glossary</h2>
+  </div>
+  <div class="gl-bar">
+    <input id="gl-q" type="search" placeholder="Filter terms, e.g. sharpe" aria-label="Filter glossary">
+    <span class="cs" id="gl-n"></span>
+  </div>
+  <dl class="gloss" id="gloss"></dl>
+</section>
+
+<footer>Every market, price and trade on this page is simulated for teaching. Nothing here is investment advice.</footer>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const RM = matchMedia('(prefers-reduced-motion: reduce)');
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+/* ---------- maths ---------- */
+function rng(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function gauss(r) { let u = 0; while (u === 0) u = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * r()); }
+function erf(x) {
+  const s = Math.sign(x); x = Math.abs(x);
+  const t = 1 / (1 + 0.3275911 * x);
+  return s * (1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x));
+}
+const ncdf = x => 0.5 * (1 + erf(x / Math.SQRT2));
+function quant(sorted, q) { const p = (sorted.length - 1) * q, lo = Math.floor(p), hi = Math.ceil(p); return sorted[lo] + (sorted[hi] - sorted[lo]) * (p - lo); }
+function genPaths(seed, n, steps, mu, sigma) {
+  const r = rng(seed), dt = 1 / 252, a = (mu - sigma * sigma / 2) * dt, b = sigma * Math.sqrt(dt), out = [];
+  for (let p = 0; p < n; p++) {
+    const x = new Float64Array(steps + 1); x[0] = 100;
+    for (let t = 1; t <= steps; t++) x[t] = x[t - 1] * Math.exp(a + b * gauss(r));
+    out.push(x);
+  }
+  return out;
+}
+function bands(P, qs) {
+  const steps = P[0].length, res = qs.map(() => new Float64Array(steps)), col = new Float64Array(P.length);
+  for (let t = 0; t < steps; t++) {
+    for (let p = 0; p < P.length; p++) col[p] = P[p][t];
+    col.sort();
+    qs.forEach((q, i) => { res[i][t] = quant(col, q); });
+  }
+  return res;
+}
+
+/* ---------- formatting ---------- */
+const MINUS = '−';
+const pct = (v, d = 0) => (v < 0 ? MINUS : '') + Math.abs(v * 100).toFixed(d) + '%';
+const spct = (v, d = 1) => (v > 0 ? '+' : v < 0 ? MINUS : '') + Math.abs(v * 100).toFixed(d) + '%';
+const money = (v, d = 0) => (v < 0 ? MINUS : '') + '$' + Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+const smoney = (v, d = 0) => (v > 0 ? '+' : '') + money(v, d);
+const num = (v, d = 2) => (v < 0 ? MINUS : '') + Math.abs(v).toFixed(d);
+const snum = (v, d = 2) => (v > 0 ? '+' : '') + num(v, d);
+const tone = v => v > 0 ? 'pos' : v < 0 ? 'neg' : '';
+
+/* ---------- canvas chart kit ---------- */
+function prep(cv) {
+  const w = cv.clientWidth, h = cv.clientHeight, dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const W = Math.max(1, Math.round(w * dpr)), H = Math.max(1, Math.round(h * dpr));
+  if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  return { ctx, w, h };
+}
+function niceScale(min, max, count = 4, int = false) {
+  if (!(max > min)) { min -= 1; max += 1; }
+  const raw = (max - min) / count, mag = Math.pow(10, Math.floor(Math.log10(raw))), n = raw / mag;
+  let step = (n > 5 ? 10 : n > 2 ? 5 : n > 1 ? 2 : 1) * mag;
+  if (int) step = Math.max(1, Math.round(step));
+  const lo = Math.floor(min / step) * step, hi = Math.ceil(max / step) * step, ticks = [];
+  for (let v = lo; v <= hi + step * 1e-6; v += step) ticks.push(Math.round(v / step) * step);
+  return { min: lo, max: hi, ticks };
+}
+function frame(ctx, w, h, o) {
+  const pl = o.pl ?? 50, pr = o.pr ?? 14, pt = o.pt ?? 12, pb = o.pb ?? 28;
+  const X0 = pl, X1 = w - pr, Y0 = pt, Y1 = h - pb;
+  const ys = niceScale(o.yMin, o.yMax, o.yCount ?? 4, o.int);
+  const sx = v => X0 + (v - o.xMin) / (o.xMax - o.xMin) * (X1 - X0);
+  const sy = v => Y1 - (v - ys.min) / (ys.max - ys.min) * (Y1 - Y0);
+  ctx.font = `11px ${cssv('--font-mono')}`;
+  ctx.lineWidth = 1;
+  ctx.fillStyle = cssv('--muted');
+  ctx.strokeStyle = cssv('--grid');
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (const t of ys.ticks) {
+    const y = Math.round(sy(t)) + 0.5;
+    if (t !== ys.min) { ctx.beginPath(); ctx.moveTo(X0, y); ctx.lineTo(X1, y); ctx.stroke(); }
+    ctx.fillText(o.yFmt(t), X0 - 8, y);
+  }
+  if (o.zero && ys.min < 0 && ys.max > 0) {
+    ctx.strokeStyle = cssv('--axis');
+    const y = Math.round(sy(0)) + 0.5; ctx.beginPath(); ctx.moveTo(X0, y); ctx.lineTo(X1, y); ctx.stroke();
+  }
+  ctx.strokeStyle = cssv('--axis');
+  const yb = Math.round(Y1) + 0.5; ctx.beginPath(); ctx.moveTo(X0, yb); ctx.lineTo(X1, yb); ctx.stroke();
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (const t of o.xTicks) {
+    const s = o.xFmt(t), half = ctx.measureText(s).width / 2;
+    ctx.fillText(s, clamp(sx(t), half + 1, w - half - 1), Y1 + 8);
+  }
+  return { sx, sy, X0, X1, Y0, Y1, ys, xMin: o.xMin, xMax: o.xMax };
+}
+function stroke(ctx, n, fx, fy, color, width = 2, alpha = 1) {
+  ctx.save(); ctx.globalAlpha = alpha; ctx.strokeStyle = color; ctx.lineWidth = width; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.beginPath();
+  for (let i = 0; i < n; i++) { const x = fx(i), y = fy(i); if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); }
+  ctx.stroke(); ctx.restore();
+}
+function fillBetween(ctx, n, fx, fyTop, fyBot, color, alpha) {
+  ctx.save(); ctx.globalAlpha = alpha; ctx.fillStyle = color; ctx.beginPath();
+  for (let i = 0; i < n; i++) { const x = fx(i), y = fyTop(i); if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); }
+  for (let i = n - 1; i >= 0; i--) ctx.lineTo(fx(i), fyBot(i));
+  ctx.closePath(); ctx.fill(); ctx.restore();
+}
+function dot(ctx, x, y, color, r = 4) {
+  ctx.beginPath(); ctx.arc(x, y, r + 2, 0, Math.PI * 2); ctx.fillStyle = cssv('--surface'); ctx.fill();
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill();
+}
+function vline(ctx, g, x, color) {
+  ctx.save(); ctx.strokeStyle = color || cssv('--axis'); ctx.lineWidth = 1;
+  const xx = Math.round(x) + 0.5; ctx.beginPath(); ctx.moveTo(xx, g.Y0); ctx.lineTo(xx, g.Y1); ctx.stroke(); ctx.restore();
+}
+function label(ctx, text, x, y, o = {}) {
+  ctx.save();
+  ctx.font = `${o.weight || 500} ${o.size || 12}px ${cssv('--font-body')}`;
+  ctx.fillStyle = cssv(o.color || '--ink-2');
+  ctx.textAlign = o.align || 'left'; ctx.textBaseline = o.base || 'middle';
+  ctx.fillText(text, x, y); ctx.restore();
+}
+function colBar(ctx, x, y, w, h, r, color) {
+  if (h <= 0 || w <= 0) return;
+  r = Math.min(r, w / 2, h);
+  ctx.beginPath(); ctx.moveTo(x, y + h); ctx.lineTo(x, y + r); ctx.arcTo(x, y, x + r, y, r);
+  ctx.lineTo(x + w - r, y); ctx.arcTo(x + w, y, x + w, y + r, r); ctx.lineTo(x + w, y + h); ctx.closePath();
+  ctx.fillStyle = color; ctx.fill();
+}
+
+const all = [];
+const ro = new ResizeObserver(es => { for (const e of es) e.target._draw && e.target._draw(); });
+function chart(sel) {
+  const el = $(sel), base = el.querySelector('canvas'), ov = document.createElement('canvas'), tip = document.createElement('div');
+  ov.className = 'ov'; ov.setAttribute('aria-hidden', 'true'); tip.className = 'tip'; tip.hidden = true;
+  el.append(ov, tip);
+  return { el, base, ov, tip, g: null };
+}
+function watch(c, draw) { c.draw = draw; c.el._draw = draw; all.push(c); ro.observe(c.el); }
+function clearOv(c) { prep(c.ov); c.tip.hidden = true; }
+function onHover(c, move, leave) {
+  const h = e => { const r = c.base.getBoundingClientRect(); if (c.g) move(e.clientX - r.left, e.clientY - r.top); };
+  c.base.addEventListener('pointermove', h);
+  c.base.addEventListener('pointerdown', h);
+  c.base.addEventListener('pointerleave', () => { clearOv(c); leave && leave(); });
+}
+function tipAt(c, x, y, html) {
+  const t = c.tip; t.innerHTML = html; t.hidden = false;
+  const w = c.el.clientWidth, tw = t.offsetWidth, th = t.offsetHeight;
+  let left = x + 16; if (left + tw > w) left = x - tw - 16; left = Math.max(0, left);
+  let top = y - th - 12; if (top < 0) top = Math.min(y + 16, c.el.clientHeight - th);
+  t.style.left = left + 'px'; t.style.top = Math.max(0, top) + 'px';
+}
+const row = (k, v, c, cls = '') => `<div class="k"><span>${c ? `<i class="${cls}" style="--c:${c}"></i>` : ''}${k}</span><span>${v}</span></div>`;
+function idxAt(g, x, n) { return clamp(Math.round((x - g.X0) / (g.X1 - g.X0) * (g.xMax - g.xMin) + g.xMin), g.xMin, Math.min(g.xMax, n)); }
+function animate(ms, f) {
+  if (RM.matches) { f(1); return; }
+  const t0 = performance.now();
+  const step = now => { const p = Math.min(1, (now - t0) / ms); f(1 - Math.pow(1 - p, 3)); if (p < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+function bindRange(id, fmt, cb) {
+  const el = $('#' + id), out = $('#' + id + '-o');
+  const upd = () => { if (out) out.textContent = fmt(+el.value); };
+  el.addEventListener('input', () => { upd(); cb(); });
+  upd();
+  return el;
+}
+const monthFmt = t => ({ 0: 'Today', 63: '3 mo', 126: '6 mo', 189: '9 mo', 252: '1 yr' })[t];
+
+/* ---------- fan chart (hero + randomness lab) ---------- */
+function drawFan(c, data, prog, opts) {
+  const { ctx, w, h } = prep(c.base);
+  const { P, q } = data;
+  let lo = Infinity, hi = -Infinity;
+  for (const p of P) for (let i = 0; i < p.length; i++) { const v = p[i]; if (v < lo) lo = v; if (v > hi) hi = v; }
+  const g = frame(ctx, w, h, { xMin: 0, xMax: 252, yMin: lo, yMax: hi, xTicks: [0, 63, 126, 189, 252], xFmt: monthFmt, yFmt: v => '$' + Math.round(v) });
+  c.g = g;
+  const n = Math.max(2, Math.round(252 * prog) + 1);
+  const s1 = cssv('--s1');
+  fillBetween(ctx, n, g.sx, i => g.sy(q[2][i]), i => g.sy(q[0][i]), s1, 0.09);
+  const alpha = opts.alpha ?? 0.25;
+  for (let k = opts.highlight ? 1 : 0; k < P.length; k++) stroke(ctx, n, g.sx, i => g.sy(P[k][i]), s1, 1, alpha);
+  if (opts.median) stroke(ctx, n, g.sx, i => g.sy(q[1][i]), cssv('--ink'), 2);
+  if (opts.highlight) {
+    const H = P[0];
+    stroke(ctx, n, g.sx, i => g.sy(H[i]), cssv('--s2'), 2.25);
+    dot(ctx, g.sx(n - 1), g.sy(H[n - 1]), cssv('--s2'));
+    if (prog >= 1) {
+      const y = g.sy(H[252]), above = y > g.Y0 + 30;
+      label(ctx, 'one possible year: ' + money(H[252]), g.X1 - 10, above ? y - 16 : y + 16, { align: 'right', size: 12, weight: 600, color: '--ink' });
+    }
+  }
+}
+function fanHover(c, getData, hl) {
+  onHover(c, (x, y) => {
+    const g = c.g, { P, q } = getData(), i = idxAt(g, x, 252);
+    const { ctx } = prep(c.ov);
+    vline(ctx, g, g.sx(i));
+    dot(ctx, g.sx(i), g.sy(q[1][i]), cssv('--ink'));
+    if (hl) dot(ctx, g.sx(i), g.sy(P[0][i]), cssv('--s2'));
+    const when = i === 0 ? 'Today' : `Day ${i} of 252 · about ${(i / 21).toFixed(1)} months`;
+    tipAt(c, g.sx(i), y, `<div class="h">${when}</div>` +
+      row('Best 5% are above', money(q[2][i])) +
+      row('Median', money(q[1][i]), cssv('--ink'), 'dot') +
+      row('Worst 5% are below', money(q[0][i])) +
+      (hl ? row('Orange path', money(P[0][i]), cssv('--s2'), 'dot') : ''));
+  });
+}
+
+/* ---------- hero ---------- */
+const heroC = chart('#hero-chart');
+let heroSeed = 11, heroProg = 1, hero;
+function heroGen() { const P = genPaths(heroSeed, 60, 252, 0.07, 0.25); hero = { P, q: bands(P, [0.05, 0.5, 0.95]) }; }
+const heroDraw = () => drawFan(heroC, hero, heroProg, { highlight: true, alpha: 0.3 });
+heroGen();
+watch(heroC, heroDraw);
+fanHover(heroC, () => hero, true);
+function heroPlay() { animate(2200, p => { heroProg = p; heroDraw(); }); }
+$('#hero-roll').addEventListener('click', () => { heroSeed++; heroGen(); heroPlay(); });
+heroPlay();
+
+/* ---------- randomness lab ---------- */
+const rwF = chart('#rw-fan'), rwH = chart('#rw-hist');
+let rwSeed = 101, rw;
+function rwRun() {
+  const vol = +$('#rw-vol').value / 100, mu = +$('#rw-mu').value / 100, n = +$('#rw-n').value;
+  const P = genPaths(rwSeed, n, 252, mu, vol);
+  const finals = Float64Array.from(P, p => p[252]).sort();
+  rw = { P, q: bands(P, [0.05, 0.5, 0.95]), finals };
+  let up = 0; for (const v of finals) if (v >= 100) up++;
+  rw.up = up / finals.length;
+  $('#rw-up').textContent = pct(rw.up);
+  $('#rw-range').textContent = `${money(quant(finals, 0.05))} – ${money(quant(finals, 0.95))}`;
+  $('#rw-daily').textContent = '±' + (vol / Math.sqrt(252) * 100).toFixed(1) + '%';
+  rwF.draw && rwF.draw(); rwH.draw && rwH.draw();
+}
+function rwHistDraw() {
+  const { ctx, w, h } = prep(rwH.base);
+  const F = rw.finals, lo = F[0], hi = F[F.length - 1], B = 24, bw = (hi - lo) / B || 1;
+  const counts = new Array(B).fill(0);
+  for (const v of F) counts[Math.min(B - 1, Math.floor((v - lo) / bw))]++;
+  const xt = niceScale(lo, hi, 5).ticks.filter(t => t >= lo && t <= hi);
+  const g = frame(ctx, w, h, { xMin: lo, xMax: hi, yMin: 0, yMax: Math.max(...counts), yCount: 3, int: true, xTicks: xt, xFmt: v => '$' + Math.round(v), yFmt: v => String(v) });
+  rwH.g = g; rwH.bins = { lo, bw, counts };
+  const s1 = cssv('--s1'), s8 = cssv('--s8');
+  for (let i = 0; i < B; i++) {
+    const a = g.sx(lo + i * bw) + 1, b = g.sx(lo + (i + 1) * bw) - 1;
+    const bwid = Math.min(24, b - a), x = (a + b) / 2 - bwid / 2, top = g.sy(counts[i]);
+    colBar(ctx, x, top, bwid, g.Y1 - top, 4, lo + (i + 0.5) * bw < 100 ? s8 : s1);
+  }
+  if (lo < 100 && hi > 100) {
+    vline(ctx, g, g.sx(100), cssv('--ink-2'));
+    label(ctx, 'start $100', g.sx(100) + 6, g.Y0 + 6, { size: 11.5 });
+  }
+}
+rwRun();
+watch(rwF, () => drawFan(rwF, rw, 1, { median: true, alpha: Math.max(0.12, Math.min(0.4, 12 / rw.P.length)) }));
+watch(rwH, rwHistDraw);
+fanHover(rwF, () => rw, false);
+onHover(rwH, (x, y) => {
+  const g = rwH.g, { lo, bw, counts } = rwH.bins;
+  const i = clamp(Math.floor((x - g.X0) / (g.X1 - g.X0) * counts.length), 0, counts.length - 1);
+  const { ctx } = prep(rwH.ov);
+  ctx.fillStyle = cssv('--ink'); ctx.globalAlpha = 0.06;
+  ctx.fillRect(g.sx(lo + i * bw), g.Y0, g.sx(lo + (i + 1) * bw) - g.sx(lo + i * bw), g.Y1 - g.Y0);
+  tipAt(rwH, x, y, `<div class="h">${money(lo + i * bw)} – ${money(lo + (i + 1) * bw)}</div>` +
+    row('Paths ending here', counts[i]) + row('Share', pct(counts[i] / rw.finals.length)));
+});
+bindRange('rw-vol', v => v + '%', rwRun);
+bindRange('rw-mu', v => (v > 0 ? '+' : v < 0 ? MINUS : '') + Math.abs(v) + '% a year', rwRun);
+bindRange('rw-n', v => String(v), rwRun);
+$('#rw-roll').addEventListener('click', () => { rwSeed++; rwRun(); });
+
+/* ---------- backtest lab ---------- */
+const FAST = [5, 10, 15, 20, 30, 40, 50, 60], SLOW = [20, 40, 60, 80, 100, 120, 150, 200];
+const WARM = 200, IS = 504, OOS = 252, NB = WARM + IS + OOS;
+const bt = { seed: 1, regime: 'random', f: 10, s: 60, cost: 5 };
+const btPriceC = chart('#bt-price'), btEqC = chart('#bt-eq');
+function btMarket() {
+  const rn = rng(bt.seed * 2654435761), rs = rng(bt.seed * 40503 + 7);
+  const P = new Float64Array(NB + 1); P[0] = 100;
+  const sd = 0.18 / Math.sqrt(252);
+  let st = rs() < 0.5 ? 1 : -1;
+  for (let t = 1; t <= NB; t++) {
+    if (rs() < 1 / 63) st = -st;
+    const mu = bt.regime === 'trend' ? st * 0.5 / 252 : 0.05 / 252;
+    P[t] = P[t - 1] * Math.exp(mu - sd * sd / 2 + sd * gauss(rn));
+  }
+  const cum = new Float64Array(NB + 2);
+  for (let i = 0; i <= NB; i++) cum[i + 1] = cum[i] + P[i];
+  bt.P = P;
+  bt.ma = (n, t) => (cum[t + 1] - cum[t + 1 - n]) / n;
+}
+function strat(f, s) {
+  const P = bt.P, ma = bt.ma, c = bt.cost / 1e4;
+  const ret = new Float64Array(NB + 1), pos = new Int8Array(NB + 1);
+  let prev = 0, trIS = 0, trOOS = 0;
+  for (let t = WARM; t < NB; t++) {
+    const p = ma(f, t) > ma(s, t) ? 1 : 0, ch = p !== prev;
+    pos[t] = p;
+    if (ch) { if (t < WARM + IS) trIS++; else trOOS++; }
+    ret[t + 1] = p * (P[t + 1] / P[t] - 1) - (ch ? c : 0);
+    prev = p;
+  }
+  return { ret, pos, trIS, trOOS };
+}
+function perf(ret, a, b) {
+  const n = b - a; let s = 0;
+  for (let t = a + 1; t <= b; t++) s += ret[t];
+  const m = s / n; let v = 0, eq = 1, pk = 1, dd = 0;
+  for (let t = a + 1; t <= b; t++) { const d = ret[t] - m; v += d * d; eq *= 1 + ret[t]; if (eq > pk) pk = eq; dd = Math.min(dd, eq / pk - 1); }
+  const sd = Math.sqrt(v / (n - 1));
+  return { sharpe: sd > 1e-12 ? m / sd * Math.sqrt(252) : 0, ann: Math.pow(eq, 252 / n) - 1, dd };
+}
+function rgbOf(c) {
+  c = c.trim();
+  if (c[0] === '#') { if (c.length === 4) c = '#' + [...c.slice(1)].map(x => x + x).join(''); return [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16)); }
+  const m = c.match(/[\d.]+/g); return m ? m.slice(0, 3).map(Number) : [128, 128, 128];
+}
+function divColor(v, lim) {
+  const t = clamp(v / lim, -1, 1), a = rgbOf(cssv('--div-mid')), b = rgbOf(cssv(t >= 0 ? '--s1' : '--s8'));
+  const m = a.map((x, i) => Math.round(x + (b[i] - x) * Math.abs(t)));
+  const L = (0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]) / 255;
+  return { bg: `rgb(${m.join(',')})`, fg: L > 0.5 ? '#101820' : '#ffffff' };
+}
+function heatBuild(el) {
+  let html = '<span class="hl corner" aria-hidden="true">↓ →</span>';
+  for (const s of SLOW) html += `<span class="hl">${s}</span>`;
+  for (const f of FAST) {
+    html += `<span class="hl">${f}</span>`;
+    for (const s of SLOW) html += f < s
+      ? `<button class="cell" type="button" data-f="${f}" data-s="${s}"></button>`
+      : '<button class="cell" type="button" disabled aria-hidden="true" tabindex="-1"></button>';
+  }
+  el.innerHTML = html;
+  el.addEventListener('click', e => { const b = e.target.closest('.cell:not(:disabled)'); if (!b) return; bt.f = +b.dataset.f; bt.s = +b.dataset.s; btSelect(); });
+}
+const heatIS = $('#heat-is'), heatOOS = $('#heat-oos');
+heatBuild(heatIS); heatBuild(heatOOS);
+function heatPaint() {
+  const map = new Map(bt.grid.map(g => [g.f + ':' + g.s, g]));
+  for (const [el, key] of [[heatIS, 'is'], [heatOOS, 'oos']]) {
+    for (const b of $$('.cell:not(:disabled)', el)) {
+      const g = map.get(b.dataset.f + ':' + b.dataset.s), v = g[key], c = divColor(v, 1.5);
+      b.style.background = c.bg; b.style.color = c.fg;
+      b.textContent = num(v, 1);
+      b.classList.toggle('sel', g.f === bt.f && g.s === bt.s);
+      b.classList.toggle('best', g === bt.best);
+      b.title = `Short ${g.f} / long ${g.s} days · in-sample Sharpe ${num(g.is)} · out-of-sample ${num(g.oos)}`;
+      b.setAttribute('aria-label', b.title);
+      b.setAttribute('aria-pressed', String(g.f === bt.f && g.s === bt.s));
+    }
+  }
+}
+function btAll() {
+  btMarket();
+  bt.grid = [];
+  for (const f of FAST) for (const s of SLOW) {
+    if (f >= s) continue;
+    const r = strat(f, s);
+    bt.grid.push({ f, s, is: perf(r.ret, WARM, WARM + IS).sharpe, oos: perf(r.ret, WARM + IS, NB).sharpe });
+  }
+  bt.best = bt.grid.reduce((a, b) => (b.is > a.is ? b : a));
+  const bh = new Float64Array(NB + 1);
+  for (let t = 1; t <= NB; t++) bh[t] = bt.P[t] / bt.P[t - 1] - 1;
+  bt.bhIS = perf(bh, WARM, WARM + IS); bt.bhOOS = perf(bh, WARM + IS, NB);
+  bt.beat = bt.grid.filter(g => g.oos > bt.bhOOS.sharpe).length;
+  btSelect();
+}
+function btSelect() {
+  bt.run = strat(bt.f, bt.s);
+  bt.pIS = perf(bt.run.ret, WARM, WARM + IS); bt.pOOS = perf(bt.run.ret, WARM + IS, NB);
+  const E = new Float64Array(IS + OOS + 1); E[0] = 100;
+  for (let i = 1; i <= IS + OOS; i++) E[i] = E[i - 1] * (1 + bt.run.ret[WARM + i]);
+  bt.E = E;
+  heatPaint();
+  $('#bt-fast-l').textContent = `${bt.f}-day average`;
+  $('#bt-slow-l').textContent = `${bt.s}-day average`;
+  const cell = (v, f, cls) => `<td class="${cls || ''}">${f(v)}</td>`;
+  $('#bt-table').innerHTML = `<thead><tr><th>Short ${bt.f} · long ${bt.s}</th><th>In-sample</th><th>Out-of-sample</th></tr></thead><tbody>
+    <tr><td>Sharpe ratio</td>${cell(bt.pIS.sharpe, v => num(v), tone(bt.pIS.sharpe))}${cell(bt.pOOS.sharpe, v => num(v), tone(bt.pOOS.sharpe))}</tr>
+    <tr><td>Return per year</td>${cell(bt.pIS.ann, v => spct(v), tone(bt.pIS.ann))}${cell(bt.pOOS.ann, v => spct(v), tone(bt.pOOS.ann))}</tr>
+    <tr><td>Worst drop from a peak</td>${cell(bt.pIS.dd, v => spct(v))}${cell(bt.pOOS.dd, v => spct(v))}</tr>
+    <tr><td>Trades</td>${cell(bt.run.trIS, String)}${cell(bt.run.trOOS, String)}</tr>
+    <tr><td>Buy-and-hold Sharpe, for comparison</td>${cell(bt.bhIS.sharpe, v => num(v))}${cell(bt.bhOOS.sharpe, v => num(v))}</tr></tbody>`;
+  const b = bt.best;
+  const why = bt.regime === 'random'
+    ? 'This market is a pure random walk, so any profit here is luck that looks like skill.'
+    : 'This market has real trends lasting a few months, so a moving-average rule has something genuine to catch.';
+  $('#bt-verdict').innerHTML = `${why} The best in-sample settings (short ${b.f}, long ${b.s}) scored a Sharpe ratio of <b>${num(b.is)}</b> on the data used to pick them, and <b>${num(b.oos)}</b> on the unseen year. <b>${bt.beat} of ${bt.grid.length}</b> settings beat simply holding the stock in that unseen year.`;
+  btPriceC.draw && btPriceC.draw(); btEqC.draw && btEqC.draw();
+}
+function regionLabels(ctx, g, w) {
+  const short = w < 520;
+  label(ctx, short ? 'In-sample' : 'In-sample · used to pick settings', g.X0 + 6, 9, { size: 11, color: '--muted' });
+  label(ctx, short ? 'Out-of-sample' : 'Out-of-sample · unseen', g.sx(IS) + 6, 9, { size: 11, color: '--muted' });
+}
+const yearTicks = [0, 252, 504, 756], yearFmt = t => ['Start', 'Year 1', 'Year 2', 'Year 3'][t / 252];
+function btPriceDraw() {
+  const { ctx, w, h } = prep(btPriceC.base);
+  const P = bt.P, ma = bt.ma, N = IS + OOS;
+  let lo = Infinity, hi = -Infinity;
+  for (let i = 0; i <= N; i++) { const t = WARM + i; for (const v of [P[t], ma(bt.f, t), ma(bt.s, t)]) { if (v < lo) lo = v; if (v > hi) hi = v; } }
+  const g = frame(ctx, w, h, { xMin: 0, xMax: N, yMin: lo, yMax: hi, pt: 24, xTicks: yearTicks, xFmt: yearFmt, yFmt: v => '$' + Math.round(v) });
+  btPriceC.g = g;
+  ctx.save(); ctx.fillStyle = cssv('--grid'); ctx.globalAlpha = 0.6;
+  let i = 0;
+  while (i < N) {
+    if (bt.run.pos[WARM + i]) { let j = i; while (j < N && bt.run.pos[WARM + j]) j++; ctx.fillRect(g.sx(i), g.Y0, g.sx(j) - g.sx(i), g.Y1 - g.Y0); i = j; } else i++;
+  }
+  ctx.restore();
+  vline(ctx, g, g.sx(IS), cssv('--ink-2'));
+  regionLabels(ctx, g, w);
+  stroke(ctx, N + 1, g.sx, k => g.sy(P[WARM + k]), cssv('--muted'), 1.25);
+  stroke(ctx, N + 1, g.sx, k => g.sy(ma(bt.s, WARM + k)), cssv('--s2'), 2);
+  stroke(ctx, N + 1, g.sx, k => g.sy(ma(bt.f, WARM + k)), cssv('--s1'), 2);
+}
+function btEqDraw() {
+  const { ctx, w, h } = prep(btEqC.base);
+  const N = IS + OOS, E = bt.E, P = bt.P, B = k => 100 * P[WARM + k] / P[WARM];
+  let lo = Infinity, hi = -Infinity;
+  for (let k = 0; k <= N; k++) for (const v of [E[k], B(k)]) { if (v < lo) lo = v; if (v > hi) hi = v; }
+  const g = frame(ctx, w, h, { xMin: 0, xMax: N, yMin: lo, yMax: hi, pt: 24, xTicks: yearTicks, xFmt: yearFmt, yFmt: v => '$' + Math.round(v) });
+  btEqC.g = g;
+  vline(ctx, g, g.sx(IS), cssv('--ink-2'));
+  regionLabels(ctx, g, w);
+  stroke(ctx, N + 1, g.sx, k => g.sy(B(k)), cssv('--muted'), 1.5);
+  stroke(ctx, N + 1, g.sx, k => g.sy(E[k]), cssv('--s1'), 2);
+  dot(ctx, g.sx(N), g.sy(E[N]), cssv('--s1'));
+}
+function btHover(src, x, y) {
+  const k = idxAt(src.g, x, IS + OOS), t = WARM + k, held = bt.run.pos[t] ? 'yes' : 'no, in cash';
+  for (const c of [btPriceC, btEqC]) {
+    const { ctx } = prep(c.ov); const g = c.g;
+    vline(ctx, g, g.sx(k));
+    if (c === btPriceC) { dot(ctx, g.sx(k), g.sy(bt.ma(bt.f, t)), cssv('--s1')); dot(ctx, g.sx(k), g.sy(bt.ma(bt.s, t)), cssv('--s2')); }
+    else { dot(ctx, g.sx(k), g.sy(100 * bt.P[t] / bt.P[WARM]), cssv('--muted')); dot(ctx, g.sx(k), g.sy(bt.E[k]), cssv('--s1')); }
+    if (c !== src) c.tip.hidden = true;
+  }
+  const head = `<div class="h">Day ${k} · ${k <= IS ? 'in-sample' : 'out-of-sample'}</div>`;
+  const html = src === btPriceC
+    ? head + row('Price', money(bt.P[t], 2), cssv('--muted')) + row(`${bt.f}-day avg`, money(bt.ma(bt.f, t), 2), cssv('--s1')) + row(`${bt.s}-day avg`, money(bt.ma(bt.s, t), 2), cssv('--s2')) + row('Holding?', held)
+    : head + row('Strategy', money(bt.E[k], 2), cssv('--s1')) + row('Buy and hold', money(100 * bt.P[t] / bt.P[WARM], 2), cssv('--muted'));
+  tipAt(src, src.g.sx(k), y, html);
+}
+btAll();
+watch(btPriceC, btPriceDraw); watch(btEqC, btEqDraw);
+onHover(btPriceC, (x, y) => btHover(btPriceC, x, y), () => clearOv(btEqC));
+onHover(btEqC, (x, y) => btHover(btEqC, x, y), () => clearOv(btPriceC));
+bindRange('bt-cost', v => v + ' bp', () => { bt.cost = +$('#bt-cost').value; btAll(); });
+$$('input[name="bt-regime"]').forEach(r => r.addEventListener('change', () => { bt.regime = r.value; btAll(); }));
+$('#bt-best').addEventListener('click', () => { bt.f = bt.best.f; bt.s = bt.best.s; btSelect(); });
+$('#bt-new').addEventListener('click', () => { bt.seed++; btAll(); });
+
+/* ---------- diversification lab ---------- */
+const DA = { mu: 0.06, sd: 0.15 }, DB = { mu: 0.09, sd: 0.25 };
+const dvF = chart('#dv-front'), dvP = chart('#dv-paths');
+let dvSeed = 42, dz;
+const pvol = (w, rho) => Math.sqrt(w * w * DA.sd ** 2 + (1 - w) ** 2 * DB.sd ** 2 + 2 * w * (1 - w) * rho * DA.sd * DB.sd);
+const pret = w => w * DA.mu + (1 - w) * DB.mu;
+function dvShocks() { const r = rng(dvSeed); dz = { a: [], b: [] }; for (let i = 0; i < 252; i++) { dz.a.push(gauss(r)); dz.b.push(gauss(r)); } }
+const dvState = () => ({ rho: +$('#dv-rho').value / 100, w: +$('#dv-w').value / 100 });
+function dvSeries() {
+  const { rho, w } = dvState(), k = Math.sqrt(Math.max(0, 1 - rho * rho)), sq = Math.sqrt(252);
+  const A = [100], B = [100], M = [100];
+  for (let i = 0; i < 252; i++) {
+    const za = dz.a[i], zb = rho * za + k * dz.b[i];
+    const ra = DA.mu / 252 + DA.sd / sq * za, rb = DB.mu / 252 + DB.sd / sq * zb;
+    A.push(A[i] * (1 + ra)); B.push(B[i] * (1 + rb)); M.push(M[i] * (1 + w * ra + (1 - w) * rb));
+  }
+  return { A, B, M };
+}
+function dvUpdate() {
+  const { rho, w } = dvState(), r = pvol(w, rho), lock = w * DA.sd + (1 - w) * DB.sd;
+  $('#dv-risk').textContent = pct(r, 1);
+  $('#dv-lock').textContent = pct(lock, 1);
+  $('#dv-saved').textContent = (lock - r > 0.0005 ? MINUS : '') + Math.abs((lock - r) * 100).toFixed(1) + ' pts';
+  dv.series = dvSeries();
+  dvF.draw && dvF.draw(); dvP.draw && dvP.draw();
+}
+const dv = {};
+function dvFrontDraw() {
+  const { ctx, w, h } = prep(dvF.base);
+  const { rho, w: wt } = dvState();
+  const g = frame(ctx, w, h, { xMin: 0, xMax: 0.3, yMin: 0.05, yMax: 0.10, yCount: 5, xTicks: [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3], xFmt: v => pct(v), yFmt: v => pct(v), pb: 40 });
+  dvF.g = g;
+  label(ctx, 'risk (volatility per year) →', g.X1, h - 6, { align: 'right', size: 11, color: '--muted', base: 'bottom' });
+  stroke(ctx, 2, i => g.sx(i ? DA.sd : DB.sd), i => g.sy(i ? DA.mu : DB.mu), cssv('--axis'), 2);
+  stroke(ctx, 101, i => g.sx(pvol(i / 100, rho)), i => g.sy(pret(i / 100)), cssv('--s1'), 2);
+  const wMin = clamp((DB.sd ** 2 - rho * DA.sd * DB.sd) / (DA.sd ** 2 + DB.sd ** 2 - 2 * rho * DA.sd * DB.sd || 1), 0, 1);
+  dot(ctx, g.sx(DA.sd), g.sy(DA.mu), cssv('--ink-2'), 4);
+  dot(ctx, g.sx(DB.sd), g.sy(DB.mu), cssv('--ink-2'), 4);
+  label(ctx, 'A · steady', g.sx(DA.sd) + 9, g.sy(DA.mu) + 1, { weight: 600 });
+  label(ctx, 'B · bumpy', g.sx(DB.sd) - 9, g.sy(DB.mu) + 1, { weight: 600, align: 'right' });
+  if (wMin > 0.02 && wMin < 0.98 && Math.abs(wMin - wt) > 0.06) {
+    const x = g.sx(pvol(wMin, rho)), y = g.sy(pret(wMin));
+    dot(ctx, x, y, cssv('--muted'), 3.5);
+    label(ctx, 'lowest risk', x - 8, y, { align: 'right', size: 11.5, color: '--muted' });
+  }
+  const mx = g.sx(pvol(wt, rho)), my = g.sy(pret(wt));
+  dot(ctx, mx, my, cssv('--s1'), 6);
+  const right = mx < g.X1 - 110;
+  label(ctx, `your mix: ${Math.round(wt * 100)}% A`, right ? mx + 12 : mx - 12, my - 14, { align: right ? 'left' : 'right', weight: 600, color: '--ink' });
+}
+function dvPathsDraw() {
+  const { ctx, w, h } = prep(dvP.base);
+  const { A, B, M } = dv.series;
+  let lo = Infinity, hi = -Infinity;
+  for (const s of [A, B, M]) for (const v of s) { if (v < lo) lo = v; if (v > hi) hi = v; }
+  const g = frame(ctx, w, h, { xMin: 0, xMax: 252, yMin: lo, yMax: hi, xTicks: [0, 63, 126, 189, 252], xFmt: monthFmt, yFmt: v => '$' + Math.round(v) });
+  dvP.g = g;
+  stroke(ctx, 253, g.sx, i => g.sy(A[i]), cssv('--s1'), 1.5, 0.9);
+  stroke(ctx, 253, g.sx, i => g.sy(B[i]), cssv('--s2'), 1.5, 0.9);
+  stroke(ctx, 253, g.sx, i => g.sy(M[i]), cssv('--ink'), 2.25);
+  dot(ctx, g.sx(252), g.sy(M[252]), cssv('--ink'));
+}
+dvShocks();
+dvUpdate();
+watch(dvF, dvFrontDraw); watch(dvP, dvPathsDraw);
+onHover(dvF, (x, y) => {
+  const g = dvF.g, { rho } = dvState();
+  let best = 0, bd = Infinity;
+  for (let i = 0; i <= 100; i++) { const d = (g.sx(pvol(i / 100, rho)) - x) ** 2 + (g.sy(pret(i / 100)) - y) ** 2; if (d < bd) { bd = d; best = i; } }
+  const wv = best / 100, px = g.sx(pvol(wv, rho)), py = g.sy(pret(wv));
+  const { ctx } = prep(dvF.ov); dot(ctx, px, py, cssv('--s1'), 5);
+  tipAt(dvF, px, py, `<div class="h">${best}% in A · ${100 - best}% in B</div>` + row('Risk', pct(pvol(wv, rho), 1)) + row('Expected return', pct(pret(wv), 1)));
+});
+onHover(dvP, (x, y) => {
+  const g = dvP.g, i = idxAt(g, x, 252), { A, B, M } = dv.series;
+  const { ctx } = prep(dvP.ov); vline(ctx, g, g.sx(i));
+  dot(ctx, g.sx(i), g.sy(A[i]), cssv('--s1')); dot(ctx, g.sx(i), g.sy(B[i]), cssv('--s2')); dot(ctx, g.sx(i), g.sy(M[i]), cssv('--ink'));
+  tipAt(dvP, g.sx(i), y, `<div class="h">Day ${i}</div>` + row('A', money(A[i], 2), cssv('--s1')) + row('B', money(B[i], 2), cssv('--s2')) + row('Your mix', money(M[i], 2), cssv('--ink')));
+});
+bindRange('dv-rho', v => (v > 0 ? '+' : v < 0 ? MINUS : '') + Math.abs(v / 100).toFixed(2), dvUpdate);
+bindRange('dv-w', v => `${v}% A · ${100 - v}% B`, dvUpdate);
+$('#dv-roll').addEventListener('click', () => { dvSeed++; dvShocks(); dvUpdate(); });
+
+/* ---------- options lab ---------- */
+const opC = chart('#op-chart');
+function bs(S, K, T, v, type) {
+  if (T <= 0 || v <= 0) {
+    const call = type === 'call';
+    return { price: call ? Math.max(S - K, 0) : Math.max(K - S, 0), delta: call ? +(S > K) : -(S < K), itm: call ? +(S > K) : +(S < K) };
+  }
+  const sq = v * Math.sqrt(T), d1 = (Math.log(S / K) + 0.5 * v * v * T) / sq, d2 = d1 - sq;
+  return type === 'call'
+    ? { price: S * ncdf(d1) - K * ncdf(d2), delta: ncdf(d1), itm: ncdf(d2) }
+    : { price: K * ncdf(-d2) - S * ncdf(-d1), delta: ncdf(d1) - 1, itm: ncdf(-d2) };
+}
+const opState = () => ({ type: $('input[name="op-type"]:checked').value, K: +$('#op-k').value, v: +$('#op-vol').value / 100, T: +$('#op-days').value / 365 });
+const payoff = (S, K, type) => type === 'call' ? Math.max(S - K, 0) : Math.max(K - S, 0);
+function opUpdate() {
+  const o = opState(), r = bs(100, o.K, o.T, o.v, o.type);
+  $('#op-price').textContent = money(r.price, 2);
+  $('#op-delta').textContent = snum(r.delta);
+  $('#op-delta-s').textContent = `option moves ${money(Math.abs(r.delta), 2)} ${r.delta >= 0 ? 'up' : 'down'} per $1 rise in the stock`;
+  $('#op-itm').textContent = pct(r.itm);
+  $('#op-be').textContent = money(o.type === 'call' ? o.K + r.price : o.K - r.price, 2);
+  opC.draw && opC.draw();
+}
+function opDraw() {
+  const { ctx, w, h } = prep(opC.base);
+  const o = opState(), n = 201, S = i => 50 + i * 0.5;
+  const val = [], pay = [];
+  let hi = 0;
+  for (let i = 0; i < n; i++) { val.push(bs(S(i), o.K, o.T, o.v, o.type).price); pay.push(payoff(S(i), o.K, o.type)); hi = Math.max(hi, val[i], pay[i]); }
+  const g = frame(ctx, w, h, { xMin: 50, xMax: 150, yMin: 0, yMax: hi, xTicks: [50, 75, 100, 125, 150], xFmt: v => '$' + v, yFmt: v => '$' + Math.round(v), pb: 40 });
+  opC.g = g;
+  label(ctx, 'stock price on the day →', g.X1, h - 6, { align: 'right', size: 11, color: '--muted', base: 'bottom' });
+  const fx = i => g.sx(S(i));
+  fillBetween(ctx, n, fx, i => g.sy(val[i]), i => g.sy(pay[i]), cssv('--s1'), 0.12);
+  vline(ctx, g, g.sx(100));
+  label(ctx, 'stock today', g.sx(100) + 6, g.Y0 + 6, { size: 11, color: '--muted' });
+  stroke(ctx, n, fx, i => g.sy(pay[i]), cssv('--ink-2'), 2);
+  stroke(ctx, n, fx, i => g.sy(val[i]), cssv('--s1'), 2);
+  const kx = g.sx(o.K);
+  ctx.fillStyle = cssv('--ink'); ctx.beginPath(); ctx.moveTo(kx, g.Y1 - 1); ctx.lineTo(kx - 5, g.Y1 - 9); ctx.lineTo(kx + 5, g.Y1 - 9); ctx.closePath(); ctx.fill();
+  label(ctx, 'strike', kx, g.Y1 - 13, { align: 'center', base: 'bottom', size: 11, color: '--ink' });
+  const p = bs(100, o.K, o.T, o.v, o.type).price;
+  dot(ctx, g.sx(100), g.sy(p), cssv('--s1'), 5);
+}
+opUpdate();
+watch(opC, opDraw);
+onHover(opC, (x, y) => {
+  const g = opC.g, o = opState(), s = clamp(Math.round((50 + (x - g.X0) / (g.X1 - g.X0) * 100) * 2) / 2, 50, 150);
+  const r = bs(s, o.K, o.T, o.v, o.type), pf = payoff(s, o.K, o.type);
+  const { ctx } = prep(opC.ov); vline(ctx, g, g.sx(s));
+  dot(ctx, g.sx(s), g.sy(r.price), cssv('--s1')); dot(ctx, g.sx(s), g.sy(pf), cssv('--ink-2'));
+  tipAt(opC, g.sx(s), y, `<div class="h">Stock at ${money(s, 2)}</div>` + row('Value today', money(r.price, 2), cssv('--s1')) + row('Payoff at expiry', money(pf, 2), cssv('--ink-2')) + row('Time value', money(r.price - pf, 2)) + row('Delta', snum(r.delta)));
+});
+['op-k', 'op-vol', 'op-days'].forEach(id => bindRange(id, id === 'op-k' ? v => '$' + v : id === 'op-vol' ? v => v + '%' : v => v + (v === 1 ? ' day' : ' days'), opUpdate));
+$$('input[name="op-type"]').forEach(r => r.addEventListener('change', opUpdate));
+
+/* ---------- market making lab ---------- */
+const MM_N = 1500, LOT = 100, JUMP = 8;
+const mmP = chart('#mm-pnl'), mmI = chart('#mm-inv');
+let mmSeed = 5, mm, mmAt = MM_N - 1;
+function mmSim() {
+  const half = +$('#mm-half').value, inf = +$('#mm-inf').value / 100, skewOn = $('#mm-skew').checked;
+  const rf = rng(mmSeed * 7 + 1), rp = rng(mmSeed * 13 + 3), ri = rng(mmSeed * 31 + 5);
+  const out = { mid: new Int32Array(MM_N), bid: new Int32Array(MM_N), ask: new Int32Array(MM_N), pnl: new Float64Array(MM_N), inv: new Int32Array(MM_N) };
+  let mid = 10000, inv = 0, cash = 0, spread = 0, toxic = 0, fills = 0, maxInv = 0;
+  for (let t = 0; t < MM_N; t++) {
+    let sk = skewOn ? Math.round(-0.3 * inv / LOT) : 0;
+    sk = clamp(sk, -(half - 1), half - 1);
+    const bid = mid - half + sk, ask = mid + half + sk;
+    out.mid[t] = mid; out.bid[t] = bid; out.ask[t] = ask;
+    if (rf() < 0.5 && rf() < Math.exp(-0.35 * (ask - mid))) { inv -= LOT; cash += ask * LOT; spread += (ask - mid) * LOT; fills++; }
+    if (rf() < 0.5 && rf() < Math.exp(-0.35 * (mid - bid))) { inv += LOT; cash -= bid * LOT; spread += (mid - bid) * LOT; fills++; }
+    let jump = 0;
+    const informed = ri() < inf, dir = ri() < 0.5 ? 1 : -1;
+    if (informed) {
+      jump = dir * JUMP;
+      if (dir > 0 && ask - mid < JUMP) { inv -= LOT; cash += ask * LOT; spread += (ask - mid) * LOT; toxic += JUMP * LOT; fills++; }
+      if (dir < 0 && mid - bid < JUMP) { inv += LOT; cash -= bid * LOT; spread += (mid - bid) * LOT; toxic += JUMP * LOT; fills++; }
+    }
+    mid += jump + Math.round(gauss(rp) * 1.2);
+    out.pnl[t] = (cash + inv * mid) / 100;
+    out.inv[t] = inv;
+    maxInv = Math.max(maxInv, Math.abs(inv));
+  }
+  out.total = out.pnl[MM_N - 1]; out.spread = spread / 100; out.toxic = -toxic / 100;
+  out.invPnl = out.total - out.spread - out.toxic; out.fills = fills; out.maxInv = maxInv;
+  return out;
+}
+function mmRun() {
+  mm = mmSim(); mmAt = MM_N - 1;
+  mmBook(mmAt); mmBreak();
+  mmP.draw && mmP.draw(); mmI.draw && mmI.draw();
+}
+function depth(t, d) { const r = rng(t * 977 + d * 131 + 17); return Math.round((2 + 1.5 * Math.abs(d)) * (0.5 + r())) * 100; }
+function mmBook(t) {
+  const mid = mm.mid[t], da = mm.ask[t] - mid, db = mid - mm.bid[t], L = 10;
+  $('#mm-book-t').textContent = t === MM_N - 1 ? 'at the close' : `at moment ${t + 1}`;
+  const rows = [];
+  let max = 0;
+  for (let d = L; d >= -L; d--) if (d) max = Math.max(max, depth(t, d) + LOT);
+  const sz = (v, me, side) => `<div class="sz"><i style="width:${(v / max * 100 * 0.62).toFixed(1)}%;--c:var(${side})"></i><span>${v.toLocaleString('en-US')}</span>${me ? '<span class="you">YOU</span>' : ''}</div>`;
+  const px = d => '$' + ((mid + d) / 100).toFixed(2);
+  for (let d = L; d >= 1; d--) {
+    const me = d === da, v = depth(t, d) + (me ? LOT : 0);
+    rows.push(`<tr class="${me ? 'me' : ''}"><td class="b"></td><td class="px">${px(d)}</td><td class="a">${sz(v, me, '--s8')}</td></tr>`);
+  }
+  rows.push(`<tr class="mid"><td colspan="3">mid ${px(0)} · you: −${db}¢ / +${da}¢</td></tr>`);
+  for (let d = 1; d <= L; d++) {
+    const me = d === db, v = depth(t, -d) + (me ? LOT : 0);
+    rows.push(`<tr class="${me ? 'me' : ''}"><td class="b">${sz(v, me, '--s1')}</td><td class="px">${px(-d)}</td><td class="a"></td></tr>`);
+  }
+  const off = [];
+  if (da > L) off.push(`your ask is ${da}¢ above mid`);
+  if (db > L) off.push(`your bid is ${db}¢ below mid`);
+  $('#mm-book').innerHTML = `<thead><tr><th>Bids (buyers)</th><th>Price</th><th>Asks (sellers)</th></tr></thead><tbody>${rows.join('')}</tbody>` +
+    (off.length ? `<caption style="caption-side:bottom;font-size:11.5px;color:var(--muted);padding-top:6px">Off screen: ${off.join(', ')}</caption>` : '');
+}
+function mmBreak() {
+  const items = [
+    ['Spread captured', mm.spread, `${mm.fills.toLocaleString('en-US')} trades`],
+    ['Losses to informed traders', mm.toxic, ''],
+    ['Price moves on inventory held', mm.invPnl, ''],
+  ];
+  const max = Math.max(...items.map(i => Math.abs(i[1])), Math.abs(mm.total), 1);
+  const bar = v => { const wv = Math.abs(v) / max * 50; return `<i style="${v >= 0 ? 'left:50%' : `left:${50 - wv}%`};width:${wv}%;background:var(${v >= 0 ? '--s1' : '--s8'})"></i>`; };
+  $('#mm-brk').innerHTML = items.map(([k, v, s]) => `<div class="brk-row"><span>${k}${s ? ` <span class="cs">· ${s}</span>` : ''}</span><div class="brk-track">${bar(v)}</div><b class="${tone(v)}">${smoney(v)}</b></div>`).join('') +
+    `<div class="brk-row total"><span>Total for the day</span><div class="brk-track">${bar(mm.total)}</div><b class="${tone(mm.total)}">${smoney(mm.total)}</b></div>` +
+    `<span class="cs">Largest position held: ${mm.maxInv.toLocaleString('en-US')} shares.</span>`;
+}
+const stepTicks = [0, 500, 1000, 1499], stepFmt = t => t === 1499 ? 'Close' : t === 0 ? 'Open' : String(t);
+function mmPnlDraw() {
+  const { ctx, w, h } = prep(mmP.base);
+  let lo = 0, hi = 0; for (const v of mm.pnl) { if (v < lo) lo = v; if (v > hi) hi = v; }
+  const g = frame(ctx, w, h, { xMin: 0, xMax: MM_N - 1, yMin: lo, yMax: hi, zero: true, xTicks: stepTicks, xFmt: stepFmt, yFmt: v => money(v) });
+  mmP.g = g;
+  stroke(ctx, MM_N, g.sx, i => g.sy(mm.pnl[i]), cssv('--s1'), 2);
+  dot(ctx, g.sx(MM_N - 1), g.sy(mm.total), cssv('--s1'));
+}
+function mmInvDraw() {
+  const { ctx, w, h } = prep(mmI.base);
+  let lo = -100, hi = 100; for (const v of mm.inv) { if (v < lo) lo = v; if (v > hi) hi = v; }
+  const g = frame(ctx, w, h, { xMin: 0, xMax: MM_N - 1, yMin: lo, yMax: hi, zero: true, yCount: 3, xTicks: stepTicks, xFmt: stepFmt, yFmt: v => v.toLocaleString('en-US') });
+  mmI.g = g;
+  fillBetween(ctx, MM_N, g.sx, i => g.sy(mm.inv[i]), () => g.sy(0), cssv('--s1'), 0.12);
+  stroke(ctx, MM_N, g.sx, i => g.sy(mm.inv[i]), cssv('--s1'), 1.5);
+}
+function mmHover(src, x, y) {
+  const i = idxAt(src.g, x, MM_N - 1);
+  for (const c of [mmP, mmI]) {
+    const { ctx } = prep(c.ov); vline(ctx, c.g, c.g.sx(i));
+    dot(ctx, c.g.sx(i), c.g.sy(c === mmP ? mm.pnl[i] : mm.inv[i]), cssv('--s1'));
+    if (c !== src) c.tip.hidden = true;
+  }
+  if (i !== mmAt) { mmAt = i; mmBook(i); }
+  tipAt(src, src.g.sx(i), y, `<div class="h">Moment ${i + 1}</div>` + row('P&amp;L so far', smoney(mm.pnl[i])) + row('Shares held', mm.inv[i].toLocaleString('en-US')) + row('Mid price', '$' + (mm.mid[i] / 100).toFixed(2)));
+}
+const mmLeave = other => () => { clearOv(other); mmAt = MM_N - 1; mmBook(mmAt); };
+mmRun();
+watch(mmP, mmPnlDraw); watch(mmI, mmInvDraw);
+onHover(mmP, (x, y) => mmHover(mmP, x, y), mmLeave(mmI));
+onHover(mmI, (x, y) => mmHover(mmI, x, y), mmLeave(mmP));
+bindRange('mm-half', v => v + '¢', mmRun);
+bindRange('mm-inf', v => v + '%', mmRun);
+$('#mm-skew').addEventListener('change', mmRun);
+$('#mm-run').addEventListener('click', () => { mmSeed++; mmRun(); });
+
+/* ---------- latency ---------- */
+const LAT_CATS = { hw: ['Computer hardware', '--s1'], sys: ['Trading system', '--s2'], net: ['Network', '--s3'], human: ['Human', '--s4'] };
+const LAT = [
+  ['One CPU clock cycle', 0.3e-9, 'hw', '0.3 ns'],
+  ['Read from the CPU’s fastest cache', 1e-9, 'hw', '1 ns'],
+  ['Read from main memory (RAM)', 100e-9, 'hw', '100 ns'],
+  ['FPGA system: market data in, order out', 500e-9, 'sys', '<1 µs'],
+  ['Tuned C++ system: market data in, order out', 5e-6, 'sys', '~5 µs'],
+  ['Round trip between servers in one data centre', 20e-6, 'net', '~20 µs'],
+  ['Chicago → New Jersey by microwave, one way', 4e-3, 'net', '~4 ms'],
+  ['Chicago → New Jersey by fibre, one way', 6.5e-3, 'net', '~6.5 ms'],
+  ['London → New York by undersea fibre, one way', 30e-3, 'net', '~30 ms'],
+  ['Blink of an eye', 150e-3, 'human', '~150 ms'],
+  ['Human reaction to something on screen', 250e-3, 'human', '~250 ms'],
+];
+const lpos = v => (Math.log10(v) + 10) / 10 * 100;
+$('#lat-legend').innerHTML = Object.values(LAT_CATS).map(([n, c]) => `<span class="key"><i class="dot" style="--c:var(${c})"></i>${n}</span>`).join('');
+$('#lat').innerHTML = LAT.map(([name, v, cat, txt]) => {
+  const p = lpos(v), left = p > 78;
+  return `<div class="lat-row"><span>${name}</span><div class="lat-track"><b class="pt" style="left:${p}%;--c:var(${LAT_CATS[cat][1]})"></b><span class="v" style="${left ? `right:${100 - p + 2.2}%` : `left:calc(${p}% + 12px)`}">${txt}</span></div></div>`;
+}).join('') + `<div class="lat-row lat-axis"><span></span><div class="lat-track">${[[-9, '1 ns'], [-6, '1 µs'], [-3, '1 ms'], [0, '1 s']].map(([e, l]) => `<span style="left:${(e + 10) * 10}%">${l}</span>`).join('')}</div></div>`;
+
+/* ---------- pipeline ---------- */
+const ROLE = { R: ['Researcher', '--s1'], T: ['Trader', '--s2'], D: ['Developer', '--s3'], K: ['Risk quant', '--s4'] };
+const STAGES = [
+  { t: 'Data', d: 'Collect and clean', o: 'DR',
+    what: 'Gather prices, trades, order books, company reports, news, even satellite images. Line up every timestamp and fix the errors.',
+    ex: 'A 4-for-1 stock split drops the price from $400 to $100 overnight. Without adjusting for it, the data shows a 75% crash that never happened.',
+    bad: 'Survivorship bias: a database holding only companies that exist today silently hides every company that went bust.', lab: null },
+  { t: 'Signal', d: 'Find an edge', o: 'R',
+    what: 'Turn data into a number that predicts future returns a little better than a coin flip. A 51% hit rate repeated a million times is a business.',
+    ex: 'Momentum: assets that rose over the past few months tend to keep rising for a while.',
+    bad: 'Most ideas are noise. Researchers often test hundreds of ideas to keep one.', lab: ['#lab-backtest', 'Test a moving-average signal'] },
+  { t: 'Backtest', d: 'Replay history', o: 'RD',
+    what: 'Simulate trading the signal on past data, with realistic costs and delays, and measure return, risk and drawdowns.',
+    ex: 'Hold the stock when the 10-day average price is above the 60-day average, otherwise hold cash.',
+    bad: 'Overfitting: tuning settings until the past looks perfect. The future does not repeat the past’s noise.', lab: ['#lab-backtest', 'Try to overfit a backtest'] },
+  { t: 'Portfolio', d: 'Size and combine', o: 'RT',
+    what: 'Decide how much money each idea gets so the whole book earns steadily and no single bet can sink it.',
+    ex: 'Two strategies that each swing 20% a year can swing far less together if they don’t move in step.',
+    bad: 'Correlations jump in a crisis. Things that looked unrelated suddenly fall together.', lab: ['#lab-diversify', 'Mix two assets'] },
+  { t: 'Execution', d: 'Trade without moving the price', o: 'TD',
+    what: 'Turn target positions into actual orders: when, where, how big, how fast.',
+    ex: 'Buying a million shares at once pushes the price up against you, so the order is sliced into thousands of small ones.',
+    bad: 'Slippage and fees eat the edge. A strategy earning 0.05% per trade is dead if trading costs 0.06%.', lab: ['#lab-mm', 'Run a market-making desk'] },
+  { t: 'Risk', d: 'Watch and limit', o: 'KT',
+    what: 'Track live profit and loss, exposures and worst cases, and switch off what breaks.',
+    ex: 'An options desk recomputes its delta every few seconds and hedges it by trading the stock.',
+    bad: 'Models assume normal markets. Loss limits and kill switches exist for the days that aren’t.', lab: ['#lab-options', 'Price an option'] },
+];
+const pipe = $('#pipe');
+pipe.innerHTML = STAGES.map((s, i) => `<li><button class="stage" type="button" data-i="${i}" aria-pressed="false"><span class="n">${String(i + 1).padStart(2, '0')}</span><span class="t">${s.t}</span><span class="d">${s.d}</span><span class="owners">${[...s.o].map(k => `<i style="--c:var(${ROLE[k][1]})" title="${ROLE[k][0]}"></i>`).join('')}</span></button></li>`).join('');
+function stageShow(i) {
+  const s = STAGES[i];
+  $$('.stage', pipe).forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.i === i)));
+  $('#stage-detail').innerHTML = `
+    <div><h4>Step ${i + 1} · what happens</h4><p>${s.what}</p></div>
+    <div><h4>Example</h4><p>${s.ex}</p></div>
+    <div><h4>Classic mistake</h4><p>${s.bad}</p></div>
+    <div class="foot"><span>Owned by</span>${[...s.o].map(k => `<span class="chip" style="--c:var(${ROLE[k][1]})"><i></i>${ROLE[k][0]}</span>`).join('')}${s.lab ? `<a href="${s.lab[0]}" style="margin-left:auto">${s.lab[1]} ↓</a>` : ''}</div>`;
+}
+pipe.addEventListener('click', e => { const b = e.target.closest('.stage'); if (b) stageShow(+b.dataset.i); });
+stageShow(2);
+
+/* ---------- roles meters ---------- */
+const SKILLS = ['Maths & statistics', 'Programming', 'Market sense', 'Speed under pressure'];
+$$('.meters').forEach(m => {
+  const v = m.dataset.m.split(',').map(Number);
+  m.innerHTML = SKILLS.map((s, i) => `<div class="meter"><span>${s}</span><span class="pips" role="img" aria-label="${v[i]} out of 5">${[1, 2, 3, 4, 5].map(k => `<b class="${k <= v[i] ? 'on' : ''}"></b>`).join('')}</span></div>`).join('');
+});
+
+/* ---------- glossary ---------- */
+const GL = [
+  ['Alpha', 'Return that comes from an edge or skill, after removing what the overall market handed you.'],
+  ['Beta', 'How much something moves with the market. Beta 1.5 means it tends to move 1.5% when the market moves 1%.'],
+  ['Basis point (bp)', 'One hundredth of a percent. 5 bp = 0.05%.'],
+  ['Volatility', 'How much a price wobbles, usually the yearly standard deviation of returns. 25% vol means a typical year lands within about ±25%.'],
+  ['Sharpe ratio', 'Average return divided by its volatility, scaled to a year. Above 1 is good. Above 2 for long is rare.'],
+  ['Drawdown', 'The fall from a peak to a later low. A 30% drawdown means the account lost 30% from its high point.'],
+  ['Backtest', 'A simulation of how a strategy would have traded in the past.'],
+  ['Overfitting', 'Tuning a model to the noise in past data. It looks great in history and fails on new data.'],
+  ['In-sample / out-of-sample', 'Data used to build a model, versus data held back to test it honestly.'],
+  ['Look-ahead bias', 'Accidentally using information in a backtest that wasn’t available at the time.'],
+  ['Survivorship bias', 'Studying only the winners that are still around, which makes the past look better than it was.'],
+  ['Correlation', 'How closely two things move together, from −1 (opposite) through 0 (unrelated) to +1 (lockstep).'],
+  ['Diversification', 'Combining assets that don’t move in step so the whole swings less than its parts.'],
+  ['Monte Carlo', 'Simulating thousands of random scenarios to see the full range of outcomes.'],
+  ['Random walk', 'A path where each step is random. The usual first model for prices.'],
+  ['Momentum', 'The tendency of recent winners to keep winning for a while.'],
+  ['Mean reversion', 'The tendency of prices that stretched too far to snap back.'],
+  ['Statistical arbitrage', 'Trading many small, related mispricings at once, betting that on average they close.'],
+  ['Option', 'A contract giving the right to buy (call) or sell (put) at a set price, the strike, by a set date.'],
+  ['Delta', 'How much an option’s value changes when the underlying stock moves $1.'],
+  ['Greeks', 'An option’s sensitivities: delta (price), gamma (delta’s own change), vega (volatility), theta (time).'],
+  ['Market maker', 'A firm that always quotes a buy and a sell price and earns the gap between them.'],
+  ['Bid, ask, spread', 'The best price a buyer will pay, the best price a seller will accept, and the gap between them.'],
+  ['Order book', 'The live list of every buy and sell order waiting at each price.'],
+  ['Adverse selection', 'Trading with someone who knows more than you, so you get filled exactly when you’d rather not.'],
+  ['Slippage', 'The difference between the price you expected and the price you actually got.'],
+  ['Latency', 'The delay between something happening and your system reacting to it.'],
+  ['Tick', 'The smallest price step allowed, often $0.01.'],
+  ['P&L', 'Profit and loss.'],
+  ['Value at Risk (VaR)', 'A loss you expect to exceed only rarely, for example on 1 day in 100.'],
+  ['Kill switch', 'An automatic stop that pulls every order when something goes wrong.'],
+];
+const gl = $('#gloss');
+gl.innerHTML = GL.map(([t, d]) => `<div data-q="${(t + ' ' + d).toLowerCase().replace(/"/g, '')}"><dt>${t.replace('&', '&amp;')}</dt><dd>${d}</dd></div>`).join('');
+function glFilter() {
+  const q = $('#gl-q').value.trim().toLowerCase(); let n = 0;
+  for (const el of gl.children) { const hit = !q || el.dataset.q.includes(q); el.hidden = !hit; if (hit) n++; }
+  $('#gl-n').textContent = `${n} of ${GL.length} terms`;
+}
+$('#gl-q').addEventListener('input', glFilter);
+glFilter();
+
+/* ---------- theme & font changes ---------- */
+const redrawAll = () => { all.forEach(c => { c.draw(); clearOv(c); }); heatPaint(); };
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', redrawAll);
+new MutationObserver(redrawAll).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(redrawAll);
+})();
+</script>
 </body>
 </html>
